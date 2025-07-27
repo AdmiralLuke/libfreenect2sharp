@@ -29,7 +29,7 @@ jobs:
         run: |
           dotnet build --configuration Release
       - name: Upload artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: linux-build
           path: |
@@ -53,7 +53,7 @@ jobs:
         run: |
           dotnet build --configuration Release
       - name: Upload artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: windows-build
           path: |
@@ -78,7 +78,7 @@ jobs:
         run: |
           dotnet build --configuration Release
       - name: Upload artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: macos-build
           path: |
@@ -98,7 +98,7 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
       - name: Download all artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
