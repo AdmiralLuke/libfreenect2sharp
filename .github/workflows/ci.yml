@@ -1,0 +1,82 @@
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main 
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Install libfreenect2
+        run: |
+          chmod +x scripts/ubuntu.sh
+          ./scripts/ubuntu.sh
+      - name: install c# dependencies
+        run: |
+          sudo apt-get install -y dotnet-sdk-6.0
+          sudo apt-get install -y libgtk-3-dev
+      - name: Build
+        run: |
+          dotnet build --configuration Release
+      - name: Release 
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            ./bin/Release/net6.0/linux-x64/publish/libfreenect2sharp.dll
+            ./bin/Release/net6.0/linux-x64/publish/libfreenect2sharp.pdb
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  windows:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Install libfreenect2
+        run: |
+          chmod +x scripts/windows.bat
+          ./scripts/windows.bat
+      - name: install c# dependencies
+        run: |
+          choco install dotnetcore-sdk --version=6.0.100
+          choco install gtk-runtime --version=3.24.30
+      - name: Build
+        run: |
+          dotnet build --configuration Release
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            ./bin/Release/net6.0/win-x64/publish/libfreenect2sharp.dll
+            ./bin/Release/net6.0/win-x64/publish/libfreenect2sharp.pdb
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  macos:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Install libfreenect2
+        run: |
+          chmod +x scripts/ubuntu.sh
+          ./scripts/ubuntu.sh
+      - name: install c# dependencies
+        run: |
+          brew install gtk+3
+          brew install mono-libgdiplus
+      - name: Build
+        run: |
+          dotnet build --configuration Release
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            ./bin/Release/net6.0/osx-x64/publish/libfreenect2sharp.dll
+            ./bin/Release/net6.0/osx-x64/publish/libfreenect2sharp.pdb
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
