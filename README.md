@@ -1,6 +1,9 @@
-# libfreenect2sharp
+# Libfreenect2Sharp
 
-## Generate ``.so`` - Static Lib
+An actual (hopefully) working C# Wrapper for the libfreenect2 library.
+It's necessary to build KinectV2-Applications. For KinectV1 see the official [C#-Wrapper](https://github.com/OpenKinect/libfreenect/tree/master/wrappers/csharp)
+
+## Install Dependencies
 
 1. Clone the original [libfreenect2](https://github.com/OpenKinect/libfreenect2)
 2. Build with the following commands
@@ -11,6 +14,8 @@ cd build
 cmake ..
 make -j$(nproc)
 ```
+
+or use one of the pre-created scripts in ``./scripts/`` (for Ubuntu, MacOs or Windows).
 
 ## Build ``.so`` from Wrapper-Class
 
