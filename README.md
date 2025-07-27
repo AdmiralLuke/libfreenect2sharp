@@ -1,3 +1,5 @@
+[![.github/workflows/ci.yml](https://github.com/AdmiralLuke/libfreenect2sharp/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/AdmiralLuke/libfreenect2sharp/actions/workflows/ci.yml)
+
 # Libfreenect2Sharp
 
 An actual (hopefully) working C# Wrapper for the libfreenect2 library.
