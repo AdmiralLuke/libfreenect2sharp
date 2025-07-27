@@ -6,6 +6,10 @@ on:
     branches:
       - main 
 
+permissions:
+  contents: write
+  pull-requests: read
+
 jobs:
   linux:
     runs-on: ubuntu-latest
@@ -32,6 +36,8 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           tag: ${{ steps.tag_version.outputs.new_tag }}
+          name: Release ${{ steps.tag_version.outputs.new_tag }}
+          body: ${{ steps.tag_version.outputs.changelog }}
           files: |
             ./bin/Release/net9.0/linux-x64/publish/libfreenect2sharp.dll
             ./bin/Release/net9.0/linux-x64/publish/libfreenect2sharp.pdb
@@ -43,6 +49,11 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+      - name: Bump version and push tag
+        id: tag_version
+        uses: mathieudutour/github-tag-action@v6.2
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
       - name: Install libfreenect2
         run: |
           chmod +x scripts/windows.bat
@@ -58,6 +69,8 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           tag: ${{ steps.tag_version.outputs.new_tag }}
+          name: Release ${{ steps.tag_version.outputs.new_tag }}
+          body: ${{ steps.tag_version.outputs.changelog }}
           files: |
             ./bin/Release/net9.0/win-x64/publish/libfreenect2sharp.dll
             ./bin/Release/net9.0/win-x64/publish/libfreenect2sharp.pdb
@@ -68,16 +81,20 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+      - name: Bump version and push tag
+        id: tag_version
+        uses: mathieudutour/github-tag-action@v6.2
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
       - name: Install libfreenect2
         run: |
-          chmod +x scripts/ubuntu.sh
-          ./scripts/ubuntu.sh
+          chmod +x scripts/mac.sh
+          ./scripts/mac.sh
       - name: install c# dependencies
         run: |
           brew install gtk+3
           brew install mono-libgdiplus
           brew install dotnet-sdk
-          brew install gtk-sharp-2.0
       - name: Build
         run: |
           dotnet build --configuration Release
@@ -85,6 +102,8 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           tag: ${{ steps.tag_version.outputs.new_tag }}
+          name: Release ${{ steps.tag_version.outputs.new_tag }}
+          body: ${{ steps.tag_version.outputs.changelog }}
           files: |
             ./bin/Release/net9.0/osx-x64/publish/libfreenect2sharp.dll
             ./bin/Release/net9.0/osx-x64/publish/libfreenect2sharp.pdb
