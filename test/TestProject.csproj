@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="libfreenect2sharp">
+      <HintPath>../bin/Release/net9.0/libfreenect2sharp.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+  </ItemGroup>
+
+  <!-- Copy native libraries to output -->
+  <ItemGroup>
+    <!-- Linux native libraries -->
+    <Content Include="../bin/Release/net9.0/*.so*" Condition="Exists('../bin/Release/net9.0/')" >
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <!-- Windows native libraries -->
+    <Content Include="../bin/Release/net9.0/*.dll" Condition="Exists('../bin/Release/net9.0/') AND '$(OS)' == 'Windows_NT'" >
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <!-- macOS native libraries -->
+    <Content Include="../bin/Release/net9.0/*.dylib*" Condition="Exists('../bin/Release/net9.0/')" >
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+</Project>

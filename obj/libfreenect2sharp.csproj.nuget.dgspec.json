@@ -1,26 +1,25 @@
 {
   "format": 1,
   "restore": {
-    "/home/lukaseichel/Desktop/libfreenect2sharp/libfreenect2sharp.csproj": {}
+    "C:\\Users\\Luke\\Documents\\libfreenect2sharp\\libfreenect2sharp.csproj": {}
   },
   "projects": {
-    "/home/lukaseichel/Desktop/libfreenect2sharp/libfreenect2sharp.csproj": {
+    "C:\\Users\\Luke\\Documents\\libfreenect2sharp\\libfreenect2sharp.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/home/lukaseichel/Desktop/libfreenect2sharp/libfreenect2sharp.csproj",
+        "projectUniqueName": "C:\\Users\\Luke\\Documents\\libfreenect2sharp\\libfreenect2sharp.csproj",
         "projectName": "libfreenect2sharp",
-        "projectPath": "/home/lukaseichel/Desktop/libfreenect2sharp/libfreenect2sharp.csproj",
-        "packagesPath": "/home/lukaseichel/.nuget/packages/",
-        "outputPath": "/home/lukaseichel/Desktop/libfreenect2sharp/obj/",
+        "projectPath": "C:\\Users\\Luke\\Documents\\libfreenect2sharp\\libfreenect2sharp.csproj",
+        "packagesPath": "C:\\Users\\Luke\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Luke\\Documents\\libfreenect2sharp\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "/home/lukaseichel/.nuget/NuGet/NuGet.Config"
+          "C:\\Users\\Luke\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net9.0"
         ],
         "sources": {
-          "/usr/lib/dotnet/library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -39,7 +38,7 @@
           "auditLevel": "low",
           "auditMode": "direct"
         },
-        "SdkAnalysisLevel": "9.0.100"
+        "SdkAnalysisLevel": "9.0.300"
       },
       "frameworks": {
         "net9.0": {
@@ -60,7 +59,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/usr/lib/dotnet/sdk/9.0.108/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.303/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

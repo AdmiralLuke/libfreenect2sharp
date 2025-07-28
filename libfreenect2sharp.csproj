@@ -1,14 +1,74 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-    	<OutputType>Exe</OutputType>
+    	<OutputType>Library</OutputType>
         <TargetFramework>net9.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
+        <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
+        <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
+        <GenerateAssemblyInformationalVersionAttribute>false</GenerateAssemblyInformationalVersionAttribute>
+        <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
+        <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
+        <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
+        <GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
     </PropertyGroup>
     <ItemGroup>
-	<None Update="libfreenect2_w.so">
+	<!-- Wrapper library -->
+	<None Update="wrapper/libfreenect2_w.so">
 	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	</None>
+	
+	<!-- Native libraries for different platforms -->
+	<Content Include="runtimes/linux-x64/native/**" Condition="Exists('runtimes/linux-x64/native/')">
+	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  <Pack>true</Pack>
+	  <PackagePath>runtimes/linux-x64/native/</PackagePath>
+	</Content>
+	
+	<Content Include="runtimes/win-x64/native/**" Condition="Exists('runtimes/win-x64/native/')">
+	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  <Pack>true</Pack>
+	  <PackagePath>runtimes/win-x64/native/</PackagePath>
+	</Content>
+	
+	<Content Include="runtimes/osx-x64/native/**" Condition="Exists('runtimes/osx-x64/native/')">
+	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  <Pack>true</Pack>
+	  <PackagePath>runtimes/osx-x64/native/</PackagePath>
+	</Content>
     </ItemGroup>
+
+    <!-- Automatically copy native libraries from various sources -->
+    <Target Name="CopyNativeLibraries" BeforeTargets="Build">
+        <!-- Linux: Copy from common libfreenect2 installation paths -->
+        <ItemGroup Condition="'$(OS)' != 'Windows_NT'">
+            <LinuxPaths Include="/usr/local/lib/libfreenect2*" />
+            <LinuxPaths Include="/usr/lib/x86_64-linux-gnu/libfreenect2*" />
+            <LinuxPaths Include="/usr/lib/libfreenect2*" />
+            <LinuxPaths Include="$(HOME)/libfreenect2/lib/libfreenect2*" />
+            <LinuxPaths Include="./libfreenect2/lib/libfreenect2*" />
+        </ItemGroup>
+        
+        <!-- Windows: Copy from common libfreenect2 installation paths -->
+        <ItemGroup Condition="'$(OS)' == 'Windows_NT'">
+            <WindowsPaths Include="C:\Program Files\libfreenect2\bin\libfreenect2*" />
+            <WindowsPaths Include="C:\libfreenect2\bin\libfreenect2*" />
+            <WindowsPaths Include="$(USERPROFILE)\libfreenect2\bin\libfreenect2*" />
+            <WindowsPaths Include=".\libfreenect2\bin\libfreenect2*" />
+        </ItemGroup>
+
+        <!-- Copy existing native files from build directory -->
+        <ItemGroup>
+            <ExistingNativeFiles Include="bin/Debug/net9.0/*.so*" />
+            <ExistingNativeFiles Include="bin/Debug/net9.0/*.dll" />
+            <ExistingNativeFiles Include="bin/Debug/net9.0/*.dylib*" />
+        </ItemGroup>
+        
+        <Copy SourceFiles="@(LinuxPaths)" DestinationFolder="runtimes/linux-x64/native/" Condition="'$(OS)' != 'Windows_NT' AND Exists('%(Identity)')" />
+        <Copy SourceFiles="@(WindowsPaths)" DestinationFolder="runtimes/win-x64/native/" Condition="'$(OS)' == 'Windows_NT' AND Exists('%(Identity)')" />
+        <Copy SourceFiles="@(ExistingNativeFiles)" DestinationFolder="runtimes/linux-x64/native/" Condition="Exists('%(Identity}')" />
+    </Target>
+
 </Project>

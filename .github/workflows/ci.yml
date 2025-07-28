@@ -26,16 +26,25 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y dotnet-sdk-9.0
           sudo apt-get install -y libgtk-3-dev
-      - name: Build
+      - name: Build and Test
         run: |
-          dotnet build --configuration Release
+          chmod +x scripts/test-linux.sh
+          ./scripts/test-linux.sh
+      - name: Publish
+        run: |
+          dotnet publish --configuration Release --runtime linux-x64 --output ./publish/linux-x64
+      - name: Copy native libraries to runtimes folder
+        run: |
+          mkdir -p runtimes/linux-x64/native
+          cp bin/Release/net9.0/*.so* runtimes/linux-x64/native/ || true
+          cp wrapper/*.so runtimes/linux-x64/native/ || true
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: linux-build
           path: |
-            ./bin/Release/net9.0/linux-x64/publish/libfreenect2sharp.dll
-            ./bin/Release/net9.0/linux-x64/publish/libfreenect2sharp.pdb
+            ./publish/linux-x64/*
+            ./runtimes/linux-x64/native/*
 
   build-windows:
     runs-on: windows-latest
@@ -44,22 +53,29 @@ jobs:
         uses: actions/checkout@v3
       - name: Install libfreenect2
         run: |
-          chmod +x scripts/windows.bat
-          ./scripts/windows.bat
+          scripts/windows.bat
       - name: install c# dependencies
         run: |
           choco install dotnetcore-sdk
           choco install gtk-runtime
-      - name: Build
+      - name: Build and Test
         run: |
-          dotnet build --configuration Release
+          scripts/test-windows.bat
+      - name: Publish
+        run: |
+          dotnet publish --configuration Release --runtime win-x64 --output ./publish/win-x64
+      - name: Copy native libraries to runtimes folder
+        run: |
+          mkdir -p runtimes/win-x64/native
+          copy bin/Release/net9.0/*.dll runtimes/win-x64/native/ 2>nul || echo "No DLLs to copy"
+          copy wrapper/*.dll runtimes/win-x64/native/ 2>nul || echo "No wrapper DLLs to copy"
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: windows-build
           path: |
-            ./bin/Release/net9.0/win-x64/publish/libfreenect2sharp.dll
-            ./bin/Release/net9.0/win-x64/publish/libfreenect2sharp.pdb
+            ./publish/win-x64/*
+            ./runtimes/win-x64/native/*
 
   build-macos:
     runs-on: macos-latest
@@ -75,16 +91,25 @@ jobs:
           brew install gtk+3
           brew install mono-libgdiplus
           brew install dotnet-sdk
-      - name: Build
+      - name: Build and Test
         run: |
-          dotnet build --configuration Release
+          chmod +x scripts/test-mac.sh
+          ./scripts/test-mac.sh
+      - name: Publish
+        run: |
+          dotnet publish --configuration Release --runtime osx-x64 --output ./publish/osx-x64
+      - name: Copy native libraries to runtimes folder
+        run: |
+          mkdir -p runtimes/osx-x64/native
+          cp bin/Release/net9.0/*.dylib runtimes/osx-x64/native/ || true
+          cp wrapper/*.dylib runtimes/osx-x64/native/ || true
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: macos-build
           path: |
-            ./bin/Release/net9.0/osx-x64/publish/libfreenect2sharp.dll
-            ./bin/Release/net9.0/osx-x64/publish/libfreenect2sharp.pdb
+            ./publish/osx-x64/*
+            ./runtimes/osx-x64/native/*
 
   release:
     needs: [build-linux, build-windows, build-macos]
@@ -100,6 +125,10 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
       - name: Download all artifacts
         uses: actions/download-artifact@v4
+      - name: Create NuGet package
+        run: |
+          sudo apt-get install -y dotnet-sdk-9.0
+          dotnet pack --configuration Release --output ./nupkg
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
@@ -107,8 +136,9 @@ jobs:
           name: Release ${{ steps.tag_version.outputs.new_tag }}
           body: ${{ steps.tag_version.outputs.changelog }}
           files: |
-            linux-build/*
-            windows-build/*
-            macos-build/*
+            linux-build/**/*
+            windows-build/**/*
+            macos-build/**/*
+            ./nupkg/*.nupkg
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -24,7 +24,7 @@ or use one of the pre-created scripts in ``./scripts/`` (for Ubuntu, MacOs or Wi
 Since we need the export
 
 ```sh
-g++ -fPIC -shared freenect2_wrapper.cpp -o libfreenect2_w.so \
+g++ -fPIC -shared wrapper/freenect2_wrapper.cpp -o wrapper/libfreenect2_w.so \
   -I ~/libfreenect2/include \
   -I ~/libfreenect2/build \
   -L ~/libfreenect2/build/lib \
