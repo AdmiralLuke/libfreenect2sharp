@@ -12,6 +12,9 @@ public class Freenect
 
     [DllImport("freenect2_w", CallingConvention = CallingConvention.Cdecl)]
     static extern int getDeviceCount(IntPtr handle);
+    
+    [DllImport("freenect2_w", CallingConvention = CallingConvention.Cdecl)]
+    static extern IntPtr openDevice(IntPtr handle, int index);
 
     private IntPtr FreenectInstance {get; set;}
     private static Freenect instance { get; set; }
@@ -56,11 +59,23 @@ public class Freenect
         return instance;
     }
 
+    /**
+     * Returns a Kinect object for the specific index.
+     * Auto uses idx = 0 (which should be the default Kinect) when no index given
+     */
+    public Kinect GetKinect(int idx = 0)
+    {
+        IntPtr handle = openDevice(FreenectInstance, idx);
+        return new Kinect(handle, idx);
+    }
+
     static void Main(string[] args)
     {
         Freenect freenect = CreateFreenect();
         Console.WriteLine(freenect.GetDeviceCount());
-        
+        Kinect kinect  = freenect.GetKinect();
+        Console.WriteLine(kinect.GetFirmwareVersion());
+        Console.WriteLine(kinect.GetIrCameraParams().fx);
     }
     
 }
