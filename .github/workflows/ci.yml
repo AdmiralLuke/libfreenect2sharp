@@ -1,0 +1,114 @@
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main 
+
+permissions:
+  contents: write
+  pull-requests: read
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Install libfreenect2
+        run: |
+          chmod +x scripts/ubuntu.sh
+          ./scripts/ubuntu.sh
+      - name: install c# dependencies
+        run: |
+          sudo add-apt-repository ppa:dotnet/backports
+          sudo apt-get update
+          sudo apt-get install -y dotnet-sdk-9.0
+          sudo apt-get install -y libgtk-3-dev
+      - name: Build
+        run: |
+          dotnet build --configuration Release
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-build
+          path: |
+            ./bin/Release/net9.0/linux-x64/publish/libfreenect2sharp.dll
+            ./bin/Release/net9.0/linux-x64/publish/libfreenect2sharp.pdb
+
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Install libfreenect2
+        run: |
+          chmod +x scripts/windows.bat
+          ./scripts/windows.bat
+      - name: install c# dependencies
+        run: |
+          choco install dotnetcore-sdk
+          choco install gtk-runtime
+      - name: Build
+        run: |
+          dotnet build --configuration Release
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-build
+          path: |
+            ./bin/Release/net9.0/win-x64/publish/libfreenect2sharp.dll
+            ./bin/Release/net9.0/win-x64/publish/libfreenect2sharp.pdb
+
+  build-macos:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Install libfreenect2
+        run: |
+          chmod +x scripts/mac.sh
+          ./scripts/mac.sh
+      - name: install c# dependencies
+        run: |
+          brew install gtk+3
+          brew install mono-libgdiplus
+          brew install dotnet-sdk
+      - name: Build
+        run: |
+          dotnet build --configuration Release
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-build
+          path: |
+            ./bin/Release/net9.0/osx-x64/publish/libfreenect2sharp.dll
+            ./bin/Release/net9.0/osx-x64/publish/libfreenect2sharp.pdb
+
+  release:
+    needs: [build-linux, build-windows, build-macos]
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Bump version and push tag
+        id: tag_version
+        uses: mathieudutour/github-tag-action@v6.2
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ steps.tag_version.outputs.new_tag }}
+          name: Release ${{ steps.tag_version.outputs.new_tag }}
+          body: ${{ steps.tag_version.outputs.changelog }}
+          files: |
+            linux-build/*
+            windows-build/*
+            macos-build/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
