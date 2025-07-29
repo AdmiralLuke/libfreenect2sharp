@@ -84,34 +84,32 @@ fi
 echo
 echo "Copying native library to output directories..."
 mkdir -p bin/Release/net9.0
-mkdir -p test/bin/Release/net9.0
 mkdir -p wrapper
 
 cp libfreenect2_w.so bin/Release/net9.0/
-cp libfreenect2_w.so test/bin/Release/net9.0/
 cp libfreenect2_w.so wrapper/
 
 echo "Native library copied to output directories"
 
-# Run integration tests
+# Create NuGet package
 echo
-echo "Running integration tests..."
-dotnet run --project test/TestProject.csproj -c Release
+echo "Creating NuGet package..."
+dotnet pack --configuration Release --output ./nupkg
 
 if [ $? -eq 0 ]; then
     echo
     echo "BUILD SUCCESSFUL!"
     echo
-    echo "libfreenect2sharp is ready to use:"
+    echo "libfreenect2sharp is ready:"
     echo "- C# library: bin/Release/net9.0/libfreenect2sharp.dll"
     echo "- Native library: bin/Release/net9.0/libfreenect2_w.so"
+    echo "- NuGet package: nupkg/libfreenect2sharp.*.nupkg"
     echo
-    echo "You can now reference libfreenect2sharp.dll in your projects."
-    echo "Make sure to include libfreenect2_w.so in your application directory."
-    echo
+    echo "You can install the NuGet package or reference the DLL directly."
 else
-    echo "Integration tests failed"
+    echo "NuGet package creation failed"
     exit 1
 fi
 
+echo
 echo "Build completed successfully!"

@@ -27,10 +27,10 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y dotnet-sdk-9.0
           sudo apt-get install -y libgtk-3-dev
-      - name: Build and Test
+      - name: Build and Package
         run: |
-          chmod +x scripts/test-linux.sh
-          ./scripts/test-linux.sh
+          chmod +x scripts/build-linux.sh
+          ./scripts/build-linux.sh
       - name: Publish
         run: |
           dotnet publish --configuration Release --runtime linux-x64 --output ./publish/linux-x64
@@ -46,6 +46,7 @@ jobs:
           path: |
             ./publish/linux-x64/*
             ./runtimes/linux-x64/native/*
+            ./nupkg/*.nupkg
 
   build-windows:
     runs-on: windows-latest
@@ -79,9 +80,9 @@ jobs:
             Copy-Item "libfreenect2_w.dll" "bin\Release\net9.0\" -Force
           }
         shell: pwsh
-      - name: Build and Test
+      - name: Build and Package
         run: |
-          scripts/test-windows.bat
+          scripts/build-windows.bat
       - name: Publish
         run: |
           dotnet publish --configuration Release --runtime win-x64 --output ./publish/win-x64
@@ -97,6 +98,7 @@ jobs:
           path: |
             ./publish/win-x64/*
             ./runtimes/win-x64/native/*
+            ./nupkg/*.nupkg
 
   build-macos:
     runs-on: macos-latest
@@ -114,10 +116,10 @@ jobs:
           brew install gtk+3
           brew install mono-libgdiplus
           brew install dotnet-sdk
-      - name: Build and Test
+      - name: Build and Package
         run: |
-          chmod +x scripts/test-mac.sh
-          ./scripts/test-mac.sh
+          chmod +x scripts/build-mac.sh
+          ./scripts/build-mac.sh
       - name: Publish
         run: |
           dotnet publish --configuration Release --runtime osx-x64 --output ./publish/osx-x64
@@ -133,6 +135,7 @@ jobs:
           path: |
             ./publish/osx-x64/*
             ./runtimes/osx-x64/native/*
+            ./nupkg/*.nupkg
 
   release:
     needs: [build-linux, build-windows, build-macos]

@@ -2,7 +2,6 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 
 [assembly: AssemblyTitle("libfreenect2sharp")]
-[assembly: AssemblyDescription("C# wrapper for libfreenect2")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("libfreenect2sharp")]

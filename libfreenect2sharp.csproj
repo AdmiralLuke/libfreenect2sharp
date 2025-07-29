@@ -13,6 +13,19 @@
         <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
         <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
         <GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
+        
+        <!-- NuGet Package Properties -->
+        <PackageId>libfreenect2sharp</PackageId>
+        <Version>1.0.0</Version>
+        <Authors>AdmiralLuke</Authors>
+        <Description>C# wrapper for libfreenect2 library for Kinect v2 development</Description>
+        <PackageProjectUrl>https://github.com/AdmiralLuke/libfreenect2sharp</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/AdmiralLuke/libfreenect2sharp</RepositoryUrl>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <PackageTags>kinect;kinectv2;libfreenect2;wrapper;csharp</PackageTags>
+        <IncludeSymbols>true</IncludeSymbols>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+        <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     </PropertyGroup>
 
     <!-- Define platform-specific symbols -->

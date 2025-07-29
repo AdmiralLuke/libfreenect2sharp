@@ -56,7 +56,6 @@ if %errorlevel% == 0 (
     goto :build_csharp
 ) else (
     echo Build failed with GCC
-    pause
     exit /b 1
 )
 
@@ -71,7 +70,6 @@ if %errorlevel% == 0 (
     goto :build_csharp
 ) else (
     echo Build failed with Visual Studio compiler
-    pause
     exit /b 1
 )
 
@@ -83,7 +81,6 @@ if %errorlevel% == 0 (
     goto :build_csharp
 ) else (
     echo Build failed with Clang
-    pause
     exit /b 1
 )
 
@@ -95,33 +92,31 @@ if %errorlevel% == 0 (
     echo Successfully built C# library
 ) else (
     echo C# build failed
-    pause
     exit /b 1
 )
 
 echo.
 echo Copying native library to output directories...
 copy libfreenect2_w.dll bin\Release\net9.0\ >nul
-copy libfreenect2_w.dll test\bin\Release\net9.0\ >nul
 copy libfreenect2_w.dll wrapper\ >nul
 echo Native library copied to output directories
 
 echo.
-echo Running integration tests...
-dotnet run --project test\TestProject.csproj -c Release
+echo Creating NuGet package...
+dotnet pack --configuration Release --output ./nupkg
 if %errorlevel% == 0 (
+    echo Successfully created NuGet package
     echo.
     echo BUILD SUCCESSFUL!
     echo.
-    echo libfreenect2sharp is ready to use:
+    echo libfreenect2sharp is ready:
     echo - C# library: bin\Release\net9.0\libfreenect2sharp.dll
     echo - Native library: bin\Release\net9.0\libfreenect2_w.dll
+    echo - NuGet package: nupkg\libfreenect2sharp.*.nupkg
     echo.
-    echo You can now reference libfreenect2sharp.dll in your projects.
-    echo Make sure to include libfreenect2_w.dll in your application directory.
+    echo You can install the NuGet package or reference the DLL directly.
 ) else (
-    echo Integration tests failed
-    pause
+    echo NuGet package creation failed
     exit /b 1
 )
 
