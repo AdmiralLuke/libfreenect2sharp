@@ -86,7 +86,7 @@ libfreenect2sharp/
 │   ├── linux-x64/native/
 │   ├── win-x64/native/
 │   └── osx-x64/native/
-├── test/                  # Integration tests (external consumer simulation)
+├── test/                  # Integration tests (external simulation)
 ├── scripts/               # Build and test scripts for each platform
 └── .github/workflows/     # CI/CD Pipeline
 ```
@@ -110,6 +110,4 @@ Freenect freenect = Freenect.CreateFreenect();
 // Get number of connected devices
 int deviceCount = freenect.GetDeviceCount();
 Console.WriteLine($"Found {deviceCount} Kinect devices");
-
-// TODO: Add more usage examples as the library develops
 ```

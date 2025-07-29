@@ -9,14 +9,14 @@ echo "Checking for available C++ compilers..."
 
 # Check for GCC
 if command -v gcc &> /dev/null; then
-    echo "✓ Found GCC compiler"
+    echo "Found GCC compiler"
     COMPILER="gcc"
 elif command -v clang &> /dev/null; then
-    echo "✓ Found Clang compiler" 
+    echo "Found Clang compiler" 
     COMPILER="clang"
 else
     echo
-    echo "❌ No C++ compiler found!"
+    echo "No C++ compiler found!"
     echo
     echo "To build libfreenect2sharp, you need a C++ compiler:"
     echo
@@ -39,7 +39,7 @@ fi
 # Check for .NET SDK
 if ! command -v dotnet &> /dev/null; then
     echo
-    echo "❌ .NET SDK not found!"
+    echo ".NET SDK not found!"
     echo
     echo "To install .NET SDK:"
     echo
@@ -54,7 +54,7 @@ if ! command -v dotnet &> /dev/null; then
     exit 1
 fi
 
-echo "✓ Found .NET SDK"
+echo "Found .NET SDK"
 
 # Build native library
 echo
@@ -62,9 +62,9 @@ echo "Building native library with $COMPILER..."
 $COMPILER -shared -fPIC -o libfreenect2_w.so wrapper/libfreenect2_w_standalone.c
 
 if [ $? -eq 0 ]; then
-    echo "✓ Successfully built libfreenect2_w.so"
+    echo "Successfully built libfreenect2_w.so"
 else
-    echo "❌ Build failed with $COMPILER"
+    echo "Build failed with $COMPILER"
     exit 1
 fi
 
@@ -74,9 +74,9 @@ echo "Building C# wrapper library..."
 dotnet build --configuration Release
 
 if [ $? -eq 0 ]; then
-    echo "✓ Successfully built C# library"
+    echo "Successfully built C# library"
 else
-    echo "❌ C# build failed"
+    echo "C# build failed"
     exit 1
 fi
 
@@ -91,7 +91,7 @@ cp libfreenect2_w.so bin/Release/net9.0/
 cp libfreenect2_w.so test/bin/Release/net9.0/
 cp libfreenect2_w.so wrapper/
 
-echo "✓ Native library copied to output directories"
+echo "Native library copied to output directories"
 
 # Run integration tests
 echo
@@ -100,7 +100,7 @@ dotnet run --project test/TestProject.csproj -c Release
 
 if [ $? -eq 0 ]; then
     echo
-    echo "🎉 BUILD SUCCESSFUL!"
+    echo "BUILD SUCCESSFUL!"
     echo
     echo "libfreenect2sharp is ready to use:"
     echo "- C# library: bin/Release/net9.0/libfreenect2sharp.dll"
@@ -110,7 +110,7 @@ if [ $? -eq 0 ]; then
     echo "Make sure to include libfreenect2_w.so in your application directory."
     echo
 else
-    echo "❌ Integration tests failed"
+    echo "Integration tests failed"
     exit 1
 fi
 

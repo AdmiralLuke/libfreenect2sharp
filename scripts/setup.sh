@@ -6,7 +6,7 @@ echo "Setting up libfreenect2sharp build scripts..."
 # Make all shell scripts executable
 chmod +x scripts/*.sh
 
-echo "✓ Made all .sh scripts executable"
+echo "Made all .sh scripts executable"
 
 # List the available build scripts
 echo
