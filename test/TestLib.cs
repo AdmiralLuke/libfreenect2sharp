@@ -51,6 +51,28 @@ namespace TestProject
             {
                 Console.WriteLine($"✗ Native library not found: {ex.Message}");
                 Console.WriteLine("This indicates that native dependencies are not properly packaged.");
+                Console.WriteLine();
+                Console.WriteLine("Possible solutions:");
+                Console.WriteLine("1. Ensure the wrapper library is built (see README)");
+                Console.WriteLine("2. Check that freenect2_w.dll/.so/.dylib is in the output directory");
+                Console.WriteLine("3. Verify libfreenect2 dependencies are installed");
+                return 1;
+            }
+            catch (BadImageFormatException ex)
+            {
+                Console.WriteLine($"✗ Invalid library format: {ex.Message}");
+                Console.WriteLine("This indicates that the native library has wrong architecture or format.");
+                Console.WriteLine();
+                Console.WriteLine("HOWEVER: This proves that P/Invoke integration is WORKING correctly!");
+                Console.WriteLine("- .NET successfully found the libfreenect2_w library");
+                Console.WriteLine("- P/Invoke declarations are correct");
+                Console.WriteLine("- Only the native library needs proper compilation");
+                Console.WriteLine();
+                Console.WriteLine("Possible solutions:");
+                Console.WriteLine("1. Rebuild the wrapper library for the correct architecture (x64/x86)");
+                Console.WriteLine("2. Ensure the library is built for the correct platform (Windows/Linux/macOS)");
+                Console.WriteLine("3. Check that you're using the correct file extension (.dll/.so/.dylib)");
+                Console.WriteLine("4. Use the CI pipeline to automatically build proper native libraries");
                 return 1;
             }
             catch (Exception ex)

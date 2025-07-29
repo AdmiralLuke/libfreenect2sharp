@@ -3,21 +3,23 @@ using System.Runtime.InteropServices;
 
 public class Freenect
 {
+    // Use standard library name without extension - .NET will find the right one
+    private const string LibraryName = "libfreenect2_w";
     
-    [DllImport("freenect2_w", CallingConvention = CallingConvention.Cdecl)]
+    [DllImport(LibraryName, CallingConvention = CallingConvention.Cdecl)]
     static extern IntPtr createFreenect2();
 
-    [DllImport("freenect2_w", CallingConvention = CallingConvention.Cdecl)]
+    [DllImport(LibraryName, CallingConvention = CallingConvention.Cdecl)]
     static extern void deleteFreenect2(IntPtr handle);
 
-    [DllImport("freenect2_w", CallingConvention = CallingConvention.Cdecl)]
+    [DllImport(LibraryName, CallingConvention = CallingConvention.Cdecl)]
     static extern int getDeviceCount(IntPtr handle);
     
-    [DllImport("freenect2_w", CallingConvention = CallingConvention.Cdecl)]
+    [DllImport(LibraryName, CallingConvention = CallingConvention.Cdecl)]
     static extern IntPtr openDevice(IntPtr handle, int index);
 
     private IntPtr FreenectInstance {get; set;}
-    private static Freenect instance { get; set; }
+    private static Freenect? instance { get; set; }
 
     /**
      * Creates a new Freenect Instance with the space of all possible Kinect devices

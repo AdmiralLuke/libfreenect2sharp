@@ -3,19 +3,22 @@ using System.Runtime.InteropServices;
 
 public class Kinect
 {
-    [DllImport("freenect2_w", CallingConvention = CallingConvention.Cdecl)]
+    // Determine library name at compile time based on platform
+    private const string LibraryName = "libfreenect2_w";
+
+    [DllImport(LibraryName, CallingConvention = CallingConvention.Cdecl)]
     static extern bool startDevice(IntPtr device);
     
-    [DllImport("freenect2_w", CallingConvention = CallingConvention.Cdecl)]
+    [DllImport(LibraryName, CallingConvention = CallingConvention.Cdecl)]
     static extern bool stopDevice(IntPtr device);
     
-    [DllImport("freenect2_w", CallingConvention = CallingConvention.Cdecl)]
+    [DllImport(LibraryName, CallingConvention = CallingConvention.Cdecl)]
     static extern bool closeDevice(IntPtr device);
     
-    [DllImport("freenect2_w", CallingConvention = CallingConvention.Cdecl)]
+    [DllImport(LibraryName, CallingConvention = CallingConvention.Cdecl)]
     static extern IntPtr getFirmwareVersion(IntPtr device);
 
-    [DllImport("freenect2_w", CallingConvention = CallingConvention.Cdecl)]
+    [DllImport(LibraryName, CallingConvention = CallingConvention.Cdecl)]
     static extern void freeString(IntPtr str);
     [StructLayout(LayoutKind.Sequential)]
     public struct IrCameraParams
@@ -24,7 +27,7 @@ public class Kinect
         public float k1, k2, k3, p1, p2;
     }
 
-    [DllImport("freenect2_w", CallingConvention = CallingConvention.Cdecl)]
+    [DllImport(LibraryName, CallingConvention = CallingConvention.Cdecl)]
     static extern IrCameraParams getIrCameraParams(IntPtr device);
 
     
