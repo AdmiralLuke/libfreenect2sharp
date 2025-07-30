@@ -59,12 +59,49 @@ echo "Found .NET SDK"
 # Build native library
 echo
 echo "Building native library with $COMPILER..."
-$COMPILER -shared -fPIC -o libfreenect2_w.so wrapper/libfreenect2_w_standalone.c
+
+# Check for local libfreenect2 build
+if [ -f ~/libfreenect2/build/lib/libfreenect2.so ] && [ -d ~/libfreenect2/include ]; then
+    echo "Using local libfreenect2 build..."
+    # First, try to create a symlink to the correct version name
+    cd ~/libfreenect2/build/lib
+    if [ ! -f libfreenect2.so.0.2 ] && [ -f libfreenect2.so.0.2.0 ]; then
+        ln -sf libfreenect2.so.0.2.0 libfreenect2.so.0.2
+    fi
+    cd - > /dev/null
+    
+    $COMPILER -shared -fPIC -o libfreenect2_w.so wrapper/freenect2_wrapper.cpp \
+      -I ~/libfreenect2/include \
+      -I ~/libfreenect2/build \
+      -L ~/libfreenect2/build/lib \
+      -lfreenect2 \
+      -Wl,-rpath,'$ORIGIN' \
+      -Wl,-rpath-link,~/libfreenect2/build/lib
+else
+    echo "❌ libfreenect2 not found!"
+    echo
+    echo "libfreenect2 needs to be built from source:"
+    echo
+    echo "1. Clone and build libfreenect2:"
+    echo "   git clone https://github.com/OpenKinect/libfreenect2.git ~/libfreenect2"
+    echo "   cd ~/libfreenect2"
+    echo "   mkdir build && cd build"
+    echo "   cmake .."
+    echo "   make -j\$(nproc)"
+    echo
+    echo "2. Or run the ubuntu setup script first:"
+    echo "   chmod +x scripts/ubuntu.sh"
+    echo "   ./scripts/ubuntu.sh"
+    echo
+    exit 1
+fi
 
 if [ $? -eq 0 ]; then
     echo "Successfully built libfreenect2_w.so"
 else
     echo "Build failed with $COMPILER"
+    echo "Note: This requires libfreenect2 to be built from source"
+    echo "See error message above for installation instructions"
     exit 1
 fi
 
@@ -82,14 +119,53 @@ fi
 
 # Copy native library to output directories
 echo
-echo "Copying native library to output directories..."
+echo "Copying native libraries to output directories..."
 mkdir -p bin/Release/net9.0
 mkdir -p wrapper
+mkdir -p runtimes/linux-x64/native
 
+# Copy our wrapper library
 cp libfreenect2_w.so bin/Release/net9.0/
 cp libfreenect2_w.so wrapper/
+cp libfreenect2_w.so runtimes/linux-x64/native/
 
-echo "Native library copied to output directories"
+# Copy libfreenect2 dependencies first to current directory for testing
+if [ -f ~/libfreenect2/build/lib/libfreenect2.so ]; then
+    echo "Copying libfreenect2 dependencies to current directory..."
+    cp ~/libfreenect2/build/lib/libfreenect2.so* ./
+    
+    # Create missing symlink in current directory
+    if [ ! -f libfreenect2.so.0.2 ] && [ -f libfreenect2.so.0.2.0 ]; then
+        ln -sf libfreenect2.so.0.2.0 libfreenect2.so.0.2
+    fi
+    
+    echo "Testing libfreenect2_w.so dependencies..."
+    ldd libfreenect2_w.so
+fi
+
+# Copy libfreenect2 dependencies if they exist
+if [ -f ~/libfreenect2/build/lib/libfreenect2.so ]; then
+    echo "Copying libfreenect2 dependencies..."
+    cp ~/libfreenect2/build/lib/libfreenect2.so* bin/Release/net9.0/
+    cp ~/libfreenect2/build/lib/libfreenect2.so* runtimes/linux-x64/native/
+    
+    # Create missing symlinks in target directories
+    cd bin/Release/net9.0/
+    if [ ! -f libfreenect2.so.0.2 ] && [ -f libfreenect2.so.0.2.0 ]; then
+        ln -sf libfreenect2.so.0.2.0 libfreenect2.so.0.2
+    fi
+    cd ../../../
+    
+    cd runtimes/linux-x64/native/
+    if [ ! -f libfreenect2.so.0.2 ] && [ -f libfreenect2.so.0.2.0 ]; then
+        ln -sf libfreenect2.so.0.2.0 libfreenect2.so.0.2
+    fi
+    cd ../../../
+    
+    echo "libfreenect2 dependencies and symlinks copied"
+fi
+
+echo "Native libraries copied to output directories"
 
 # Create NuGet package
 echo

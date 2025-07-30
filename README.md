@@ -5,74 +5,69 @@
 An actual (hopefully) working C# Wrapper for the libfreenect2 library.
 It's necessary to build KinectV2-Applications. For KinectV1 see the official [C#-Wrapper](https://github.com/OpenKinect/libfreenect/tree/master/wrappers/csharp)
 
-## Quick Start
+## Quick Start & Usage
 
-### Using NuGet Package (Recommended)
+### 1. Install libfreenect2
 
-Install the NuGet package:
+*Automatic Installation Scripts*
+
+- Ubuntu
 ```sh
-dotnet add package libfreenect2sharp
+chmod +x ./scripts/ubuntu.sh
+./scripts/ubuntu.sh
 ```
+- Windows & MacOS: see ``./scripts/windows.bat`` or ``./scripts/mac.sh`` (Experimental)
 
-Or via Package Manager:
-```
-Install-Package libfreenect2sharp
-```
+*Manual Installation* see the [official Repo](https://github.com/OpenKinect/libfreenect2/)
 
+### 2. Clone this Project
 
-### Using Pre-built Releases
-1. Download the latest release from [GitHub Releases](https://github.com/AdmiralLuke/libfreenect2sharp/releases)
-2. Extract the platform-specific build (linux-x64, win-x64, or osx-x64)
-3. Reference `libfreenect2sharp.dll` in your C# project
-4. The native libraries are automatically included
-
-### Building from Source
-
-Use the platform-specific build scripts:
-
-**Windows:**
-```cmd
-scripts\build-windows.bat
-```
-
-**Linux:**
 ```sh
-chmod +x scripts/build-linux.sh
+git clone https://www.github.com/admiralluke/libfreenect2sharp/
+cd libfreenect2sharp
+```
+
+### 3. Build the Project
+
+*Linux:*
+
+```sh 
+chmod +x ./scripts/build-linux.sh
 ./scripts/build-linux.sh
 ```
 
-**macOS:**
+*Windows* and *MacOS* are untested yet and experimental!
+
+This should generate (when success) the following:
+- in ``./nupkg/`` a ``libfreenect2sharp.1.0.0.nupkg`` and ``libfreenect2sharp.1.0.0.snupkg`` (see Releases (TODO))
+- in the current main folder a ``libfreenect2_w.so`` and three linked files (copied from ~/libfreenect2)
+```sh 
+libfreenect2.so
+libfreenect2.so.0.2
+libfreenect2.so.0.2.0
+```
+
+### 4. Usage
+
+- Setup a C#-Project (recommended: .NET 9.0)
+- Build it a first time, so the project can generate all necessary files
+- create a folder e.g. ``mkdir ./Native/`` and copy ``libfreenect2sharp.1.0.0.nupkg`` into it
+- add the local nuget package
+- 
 ```sh
-chmod +x scripts/build-mac.sh
-./scripts/build-mac.sh
+dotnet add package libfreenect2sharp --version 1.0.0 --source ./Native
 ```
 
-Each script will:
-- Compile the native library (`libfreenect2_w`)
-- Build the C# wrapper
-- Create a NuGet package in the `nupkg/` directory
 
-## Project Structure
-
-```
-libfreenect2sharp/
-├── *.cs                    # C# wrapper classes
-├── wrapper/                # C++ wrapper for P/Invoke
-├── runtimes/              # Native libraries organized by platform
-│   ├── linux-x64/native/
-│   ├── win-x64/native/
-│   └── osx-x64/native/
-├── scripts/               # Build scripts for each platform
-├── nupkg/                 # Generated NuGet packages
-└── .github/workflows/     # CI/CD Pipeline
+- copy the following files from the main folder of the libfreenect2sharp project into ``./bin/Debug/netX.Y/`` :
+```sh
+libfreenect2_w.so
+libfreenect2.so
+libfreenect2.so.0.2
+libfreenect2.so.0.2.0
 ```
 
-## CI/CD
-
-The project uses GitHub Actions to:
-- Build on Linux, Windows, and macOS
-- Create platform-specific releases
-- Generate NuGet packages automatically
+- Enjoy :)
 
 ## Usage Example
 
@@ -87,6 +82,3 @@ int deviceCount = freenect.GetDeviceCount();
 Console.WriteLine($"Found {deviceCount} Kinect devices");
 ```
 
-## Native Libraries
-
-This wrapper requires the original libfreenect2 native libraries to function. The NuGet package includes only the C# wrapper - you need to install libfreenect2 separately.
