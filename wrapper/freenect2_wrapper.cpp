@@ -74,3 +74,65 @@ extern "C" {
     }
 }
 
+extern "C" {
+    struct ColorCameraParams
+    {
+        float fx, fy, cx, cy;
+        float shift_d, shift_m;
+
+        float mx_x3y0; // xxx
+        float mx_x0y3; // yyy
+        float mx_x2y1; // xxy
+        float mx_x1y2; // yyx
+        float mx_x2y0; // xx
+        float mx_x0y2; // yy
+        float mx_x1y1; // xy
+        float mx_x1y0; // x
+        float mx_x0y1; // y
+        float mx_x0y0; // 1
+
+        float my_x3y0; // xxx
+        float my_x0y3; // yyy
+        float my_x2y1; // xxy
+        float my_x1y2; // yyx
+        float my_x2y0; // xx
+        float my_x0y2; // yy
+        float my_x1y1; // xy
+        float my_x1y0; // x
+        float my_x0y1; // y
+        float my_x0y0; // 1
+    };
+
+    ColorCameraParams getColorCameraParams(libfreenect2::Freenect2Device* device)
+    {
+        libfreenect2::Freenect2Device::ColorCameraParams params = device->getColorCameraParams();
+        ColorCameraParams result;
+        result.fx = params.fx;
+        result.fy = params.fy;
+        result.cx = params.cx;
+        result.cy = params.cy;
+        result.mx_x3y0 = params.mx_x3y0;
+        result.mx_x0y3 = params.mx_x0y3;
+        result.mx_x2y1 = params.mx_x2y1;
+        result.mx_x1y2 = params.mx_x1y2;
+        result.mx_x2y0 = params.mx_x2y0;
+        result.mx_x0y2  = params.mx_0y2;
+        result.mx_x1y1 = params.mx_x1y1;
+        result.mx_x1y0 = params.mx_x1y0;
+        result.mx_x0y1 = params.mx_x0y1;
+        result.mx_x0y0 = params.mx_x0y0;
+
+        result.my_x3y0 = params.my_x3y0;
+        result.my_x0y3 = params.my_x0y3;
+        result.my_x2y1 = params.my_x2y1;
+        result.my_x1y2 = params.my_x1y2;
+        result.my_x2y0 = params.my_x2y0;
+        result.my_x0y2  = params.my_0y2;
+        result.my_x1y1 = params.my_x1y1;
+        result.my_x1y0 = params.my_x1y0;
+        result.my_x0y1 = params.my_x0y1;
+        result.my_x0y0 = params.my_x0y0;
+
+        return result;
+    }
+}
