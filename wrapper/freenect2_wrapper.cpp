@@ -116,7 +116,7 @@ extern "C" {
         result.mx_x2y1 = params.mx_x2y1;
         result.mx_x1y2 = params.mx_x1y2;
         result.mx_x2y0 = params.mx_x2y0;
-        result.mx_x0y2  = params.mx_0y2;
+        result.mx_x0y2  = params.mx_x0y2;
         result.mx_x1y1 = params.mx_x1y1;
         result.mx_x1y0 = params.mx_x1y0;
         result.mx_x0y1 = params.mx_x0y1;
@@ -127,7 +127,7 @@ extern "C" {
         result.my_x2y1 = params.my_x2y1;
         result.my_x1y2 = params.my_x1y2;
         result.my_x2y0 = params.my_x2y0;
-        result.my_x0y2  = params.my_0y2;
+        result.my_x0y2  = params.my_x0y2;
         result.my_x1y1 = params.my_x1y1;
         result.my_x1y0 = params.my_x1y0;
         result.my_x0y1 = params.my_x0y1;
@@ -135,4 +135,192 @@ extern "C" {
 
         return result;
     }
+
+    extern "C" void setIrCameraParams(libfreenect2::Freenect2Device* device, const IrCameraParamsInterop* params) {
+        libfreenect2::Freenect2Device::IrCameraParams native;
+        native.fx = params->fx;
+        native.fy = params->fy;
+        native.cx = params->cx;
+        native.cy = params->cy;
+        native.k1 = params->k1;
+        native.k2 = params->k2;
+        native.k3 = params->k3;
+        native.p1 = params->p1;
+        native.p2 = params->p2;
+        device->setIrCameraParams(native);
+    }
+
+    extern "C" void setColorCameraParams(libfreenect2::Freenect2Device* device, const ColorCameraParams* params) {
+        libfreenect2::Freenect2Device::ColorCameraParams native;
+        native.fx = params->fx;
+        native.fy = params->fy;
+        native.cx = params->cx;
+        native.cy = params->cy;
+        native.shift_d = params->shift_d;
+        native.shift_m = params->shift_m;
+
+        native.mx_x3y0 = params->mx_x3y0;
+        native.mx_x0y3 = params->mx_x0y3;
+        native.mx_x2y1 = params->mx_x2y1;
+        native.mx_x1y2 = params->mx_x1y2;
+        native.mx_x2y0 = params->mx_x2y0;
+        native.mx_x0y2 = params->mx_x0y2;
+        native.mx_x1y1 = params->mx_x1y1;
+        native.mx_x1y0 = params->mx_x1y0;
+        native.mx_x0y1 = params->mx_x0y1;
+        native.mx_x0y0 = params->mx_x0y0;
+
+        native.my_x3y0 = params->my_x3y0;
+        native.my_x0y3 = params->my_x0y3;
+        native.my_x2y1 = params->my_x2y1;
+        native.my_x1y2 = params->my_x1y2;
+        native.my_x2y0 = params->my_x2y0;
+        native.my_x0y2 = params->my_x0y2;
+        native.my_x1y1 = params->my_x1y1;
+        native.my_x1y0 = params->my_x1y0;
+        native.my_x0y1 = params->my_x0y1;
+        native.my_x0y0 = params->my_x0y0;
+
+        device->setColorCameraParams(native);
+    }
+
+    extern "C" void setColorAutoExposure(libfreenect2::Freenect2Device* device, float exposure_compensation) {
+        device->setColorAutoExposure(exposure_compensation);
+    }
+
+    extern "C" void setColorSemiAutoExposure(libfreenect2::Freenect2Device* device, float pseudo_exposure_time_ms) {
+        device->setColorSemiAutoExposure(pseudo_exposure_time_ms);
+    }
+
+    extern "C" void setColorManualExposure(libfreenect2::Freenect2Device* device, float integration_time_ms, float analog_gain) {
+        device->setColorManualExposure(integration_time_ms, analog_gain);
+    }
+
+    extern "C" {
+        typedef struct {
+            uint16_t LedId;
+            uint16_t Mode;
+            uint16_t StartLevel;
+            uint16_t StopLevel;
+            uint32_t IntervalInMs;
+            uint32_t Reserved;
+        } LedSettingsC;
+
+        // Wrapper-Funktion
+        void setLedStatus(libfreenect2::Freenect2Device* device, LedSettingsC led) {
+            libfreenect2::LedSettings internalLed;
+            internalLed.LedId = led.LedId;
+            internalLed.Mode = led.Mode;
+            internalLed.StartLevel = led.StartLevel;
+            internalLed.StopLevel = led.StopLevel;
+            internalLed.IntervalInMs = led.IntervalInMs;
+            internalLed.Reserved = led.Reserved;
+
+            device->setLedStatus(internalLed);
+        }
+
+    }
+
+    extern "C" const char* getSerialNumber(libfreenect2::Freenect2Device* device) {
+        std::string serial = device->getSerialNumber();
+        char* result = new char[serial.size() + 1];
+        std::strcpy(result, serial.c_str());
+        return result;
+    }
+
+
+    struct DeviceConfig {
+        float MinDepth;
+        float MaxDepth;
+        bool EnableBilateralFilter;
+        bool EnableEdgeAwareFilter;
+    };
+
+    extern "C" void setDeviceConfig(libfreenect2::Freenect2Device* device, const DeviceConfig* cfg) {
+        libfreenect2::Freenect2Device::Config native;
+        native.MinDepth = cfg->MinDepth;
+        native.MaxDepth = cfg->MaxDepth;
+        native.EnableBilateralFilter = cfg->EnableBilateralFilter;
+        native.EnableEdgeAwareFilter = cfg->EnableEdgeAwareFilter;
+        device->setConfiguration(native);
+    }
+    
+    
+
+
+
+#ifdef _WIN32
+#define CALLBACK __stdcall
+#else
+#define CALLBACK
+#endif
+
+    typedef void(CALLBACK *NewFrameCallback)(
+        int frameType,
+        unsigned char* data,
+        int width,
+        int height,
+        int bytesPerPixel,
+        uint32_t timestamp,
+        uint32_t sequence,
+        float exposure,
+        float gain,
+        float gamma
+    );
+
+    class CSharpFrameListener : public libfreenect2::FrameListener
+    {
+    public:
+        explicit CSharpFrameListener(NewFrameCallback cb) : callback(cb) {}
+
+        bool onNewFrame(libfreenect2::Frame::Type type, libfreenect2::Frame* frame) override
+        {
+            if (callback != nullptr && frame != nullptr)
+            {
+                callback(static_cast<int>(type),
+                         frame->data,
+                         static_cast<int>(frame->width),
+                         static_cast<int>(frame->height),
+                         static_cast<int>(frame->bytes_per_pixel),
+                         frame->timestamp,
+                         frame->sequence,
+                         frame->exposure,
+                         frame->gain,
+                         frame->gamma);
+            }
+            return false; // We don't take ownership
+        }
+
+    private:
+        NewFrameCallback callback;
+    };
+
+    extern "C" {
+
+        CSharpFrameListener* createFrameListener(NewFrameCallback cb)
+        {
+            return new CSharpFrameListener(cb);
+        }
+
+        void deleteFrameListener(CSharpFrameListener* listener)
+        {
+            delete listener;
+        }
+
+        void setColorFrameListener(libfreenect2::Freenect2Device* device, libfreenect2::FrameListener* listener)
+        {
+            device->setColorFrameListener(listener);
+        }
+
+        void setIrAndDepthFrameListener(libfreenect2::Freenect2Device* device, libfreenect2::FrameListener* listener)
+        {
+            device->setIrAndDepthFrameListener(listener);
+        }
+
+    }
+
+
+
+
+
 }

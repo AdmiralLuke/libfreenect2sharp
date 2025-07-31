@@ -69,6 +69,9 @@ public class Kinect
     private float depth_q = 0.01f; // hardcoded see https://github.com/OpenKinect/libfreenect2/issues/41#issuecomment-72022111
     private float color_q = 0.002199f; // hardcoded see https://github.com/OpenKinect/libfreenect2/issues/41#issuecomment-72022111
     
+    private FrameListener? colorListener;
+    private FrameListener? irDepthListener;
+    
     /// <summary>
     /// Instance from one Kinect Device
     /// </summary>
@@ -83,6 +86,8 @@ public class Kinect
         {
             throw new Exception("Could not start Kinect device");
         }
+        SetLed(0, 1, 0, 1000, 500);
+        SetLed(1, 0, 1000, 1000, 0);
     }
 
     /// <summary>
@@ -90,6 +95,8 @@ public class Kinect
     /// </summary>
     ~Kinect()
     {
+        SetLed(0, 0, 0, 0, 0);
+        SetLed(1, 0, 0, 0, 0);
         stopDevice(Device);
         closeDevice(Device);
     }
@@ -182,6 +189,124 @@ public class Kinect
 
         return [rx * c.fx + c.cx, ry * c.fy + c.cy];
     }
+    
+    [DllImport(LibraryName, CallingConvention = CallingConvention.Cdecl)]
+    static extern IntPtr getSerialNumber(IntPtr device);
+
+    /// <summary>
+    /// Returns the serial number of the Kinect device.
+    /// </summary>
+    /// <returns>Serial number as string</returns>
+    public string GetSerialNumber()
+    {
+        IntPtr ptr = getSerialNumber(Device);
+        string serial = Marshal.PtrToStringAnsi(ptr) ?? string.Empty;
+        freeString(ptr);
+        return serial;
+    }
+    
+    [StructLayout(LayoutKind.Sequential)]
+    public struct DeviceConfig
+    {
+        public float MinDepth;
+        public float MaxDepth;
+        [MarshalAs(UnmanagedType.I1)]
+        public bool EnableBilateralFilter;
+        [MarshalAs(UnmanagedType.I1)]
+        public bool EnableEdgeAwareFilter;
+    }
+
+    [DllImport(LibraryName, CallingConvention = CallingConvention.Cdecl)]
+    static extern void setDeviceConfig(IntPtr device, ref DeviceConfig config);
+
+
+    /// <summary>
+    /// Sets the depth processing configuration of the Kinect device.
+    /// </summary>
+    /// <param name="minDepth">Minimum depth in meters</param>
+    /// <param name="maxDepth">Maximum depth in meters</param>
+    /// <param name="enableBilateralFilter">Enables bilateral filter</param>
+    /// <param name="enableEdgeAwareFilter">Enables edge-aware filter</param>
+    public void SetDepthProcessingConfig(float minDepth = 0.5f, float maxDepth = 4.5f, bool enableBilateralFilter = true, bool enableEdgeAwareFilter = true)
+    {
+        DeviceConfig cfg = new DeviceConfig
+        {
+            MinDepth = minDepth,
+            MaxDepth = maxDepth,
+            EnableBilateralFilter = enableBilateralFilter,
+            EnableEdgeAwareFilter = enableEdgeAwareFilter
+        };
+        setDeviceConfig(Device, ref cfg);
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    public struct LedSettings
+    {
+        public ushort LedId;
+        public ushort Mode;
+        public ushort StartLevel;
+        public ushort StopLevel;
+        public uint IntervalInMs;
+        public uint Reserved;
+    }
+
+    [DllImport(LibraryName, CallingConvention = CallingConvention.Cdecl)]
+    static extern void setLedStatus(IntPtr device, LedSettings led);
+
+    
+    /// <summary>
+    /// Sets the LED behavior on the Kinect device.
+    /// </summary>
+    /// <param name="ledId">LED index (0 or 1)</param>
+    /// <param name="mode">0 = constant, 1 = blink</param>
+    /// <param name="startLevel">Start intensity (0-1000)</param>
+    /// <param name="stopLevel">Stop intensity (0-1000)</param>
+    /// <param name="intervalInMs">Blink interval in milliseconds (only for mode=1)</param>
+    public void SetLed(ushort ledId, ushort mode, ushort startLevel, ushort stopLevel, uint intervalInMs)
+    {
+        LedSettings settings = new LedSettings
+        {
+            LedId = ledId,
+            Mode = mode,
+            StartLevel = startLevel,
+            StopLevel = stopLevel,
+            IntervalInMs = intervalInMs,
+            Reserved = 0
+        };
+        setLedStatus(Device, settings);
+    }
+    
+    [DllImport(LibraryName, CallingConvention = CallingConvention.Cdecl)]
+    private static extern void setColorFrameListener(IntPtr device, IntPtr listener);
+
+    [DllImport(LibraryName, CallingConvention = CallingConvention.Cdecl)]
+    private static extern void setIrAndDepthFrameListener(IntPtr device, IntPtr listener);
+
+
+
+    /// <summary>
+    /// Register Callback Delegate if a new ColorFrame was recieved
+    /// </summary>
+    /// <param name="callback">Action with FrameType=Color</param>
+    public void OnColorFrame(Action<Frame.FrameType, Frame> callback)
+    {
+        colorListener?.Dispose(); 
+        colorListener = new FrameListener(callback);
+        setColorFrameListener(Device, colorListener.NativePointer);
+    }
+
+    /// <summary>
+    /// Register Callback Delegate if a new IR/Depth was recieved
+    /// </summary>
+    /// <param name="callback">Action with FrameType=IR or Depth</param>
+    public void OnIrAndDepthFrame(Action<Frame.FrameType, Frame> callback)
+    {
+        irDepthListener?.Dispose(); 
+        irDepthListener = new FrameListener(callback);
+        setIrAndDepthFrameListener(Device, irDepthListener.NativePointer);
+    }
+
+
     
     
 }

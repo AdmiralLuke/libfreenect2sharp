@@ -16,7 +16,7 @@
         
         <!-- NuGet Package Properties -->
         <PackageId>libfreenect2sharp</PackageId>
-        <Version>1.0.0</Version>
+        <Version>1.0.4</Version>
         <Authors>AdmiralLuke</Authors>
         <Description>C# wrapper for libfreenect2 library for Kinect v2 development</Description>
         <PackageProjectUrl>https://github.com/AdmiralLuke/libfreenect2sharp</PackageProjectUrl>
@@ -26,6 +26,7 @@
         <IncludeSymbols>true</IncludeSymbols>
         <SymbolPackageFormat>snupkg</SymbolPackageFormat>
         <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+        <IncludeBuildOutput>true</IncludeBuildOutput>
     </PropertyGroup>
 
     <!-- Define platform-specific symbols -->
@@ -43,38 +44,38 @@
     <ItemGroup>
 	<!-- Native libraries for different platforms - proper NuGet packaging -->
 	<Content Include="runtimes/linux-x64/native/**" Condition="Exists('runtimes/linux-x64/native/')">
-	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  <Pack>true</Pack>
 	  <PackagePath>runtimes/linux-x64/native/%(RecursiveDir)%(Filename)%(Extension)</PackagePath>
 	</Content>
 	
 	<Content Include="runtimes/win-x64/native/**" Condition="Exists('runtimes/win-x64/native/')">
-	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  <Pack>true</Pack>
 	  <PackagePath>runtimes/win-x64/native/%(RecursiveDir)%(Filename)%(Extension)</PackagePath>
 	</Content>
 	
 	<Content Include="runtimes/osx-x64/native/**" Condition="Exists('runtimes/osx-x64/native/')">
-	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  <Pack>true</Pack>
 	  <PackagePath>runtimes/osx-x64/native/%(RecursiveDir)%(Filename)%(Extension)</PackagePath>
 	</Content>
 	
 	<!-- Include wrapper libraries in the output -->
 	<None Include="wrapper/libfreenect2_w.so" Condition="Exists('wrapper/libfreenect2_w.so')">
-	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  <Pack>true</Pack>
 	  <PackagePath>runtimes/linux-x64/native/libfreenect2_w.so</PackagePath>
 	</None>
 	
 	<None Include="wrapper/libfreenect2_w.dll" Condition="Exists('wrapper/libfreenect2_w.dll')">
-	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  <Pack>true</Pack>
 	  <PackagePath>runtimes/win-x64/native/libfreenect2_w.dll</PackagePath>
 	</None>
 	
 	<None Include="wrapper/libfreenect2_w.dylib" Condition="Exists('wrapper/libfreenect2_w.dylib')">
-	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  <Pack>true</Pack>
 	  <PackagePath>runtimes/osx-x64/native/libfreenect2_w.dylib</PackagePath>
 	</None>

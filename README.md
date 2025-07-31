@@ -55,7 +55,7 @@ libfreenect2.so.0.2.0
 - add the local nuget package
 - 
 ```sh
-dotnet add package libfreenect2sharp --version 1.0.0 --source ./Native
+dotnet add package libfreenect2sharp --version 1.0.4 --source ./Native
 ```
 
 
@@ -80,5 +80,31 @@ Freenect freenect = Freenect.CreateFreenect();
 // Get number of connected devices
 int deviceCount = freenect.GetDeviceCount();
 Console.WriteLine($"Found {deviceCount} Kinect devices");
+
+// Get Frames
+void SubscribeAndLogFrames(Kinect kinect)
+{
+    kinect.OnColorFrame((type, frame) =>
+    {
+        Console.WriteLine($"[Color] {type}: {frame.Width}x{frame.Height}, Timestamp={frame.Timestamp}");
+    });
+
+    kinect.OnIrAndDepthFrame((type, frame) =>
+    {
+        Console.WriteLine($"[IR/Depth] {type}: {frame.Width}x{frame.Height}, Exposure={frame.Exposure}, Timestamp={frame.Timestamp}");
+    });
+}
+
+SubscribeAndLogFrames(kinect);
+
+while (true)
+{
+    Thread.Sleep(100); 
+}
+// [...]
+// [IR/Depth] Ir: 512x424, Exposure=0, Timestamp=8653032
+// [IR/Depth] Depth: 512x424, Exposure=0, Timestamp=8653032
+// [Color] Color: 1920x1080, Timestamp=8653212
+// [...]
 ```
 
