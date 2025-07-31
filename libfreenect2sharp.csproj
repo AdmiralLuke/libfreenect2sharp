@@ -1,14 +1,139 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-    	<OutputType>Exe</OutputType>
+    	<OutputType>Library</OutputType>
         <TargetFramework>net9.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
+        <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
+        <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
+        <GenerateAssemblyInformationalVersionAttribute>false</GenerateAssemblyInformationalVersionAttribute>
+        <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
+        <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
+        <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
+        <GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
+        
+        <!-- NuGet Package Properties -->
+        <PackageId>libfreenect2sharp</PackageId>
+        <Version>1.0.4</Version>
+        <Authors>AdmiralLuke</Authors>
+        <Description>C# wrapper for libfreenect2 library for Kinect v2 development</Description>
+        <PackageProjectUrl>https://github.com/AdmiralLuke/libfreenect2sharp</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/AdmiralLuke/libfreenect2sharp</RepositoryUrl>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <PackageTags>kinect;kinectv2;libfreenect2;wrapper;csharp</PackageTags>
+        <IncludeSymbols>true</IncludeSymbols>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+        <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+        <IncludeBuildOutput>true</IncludeBuildOutput>
+    </PropertyGroup>
+
+    <!-- Define platform-specific symbols -->
+    <PropertyGroup Condition="'$(OS)' == 'Windows_NT'">
+        <DefineConstants>$(DefineConstants);_WINDOWS</DefineConstants>
+    </PropertyGroup>
+    
+    <PropertyGroup Condition="'$(OS)' == 'Unix'">
+        <DefineConstants>$(DefineConstants);__UNIX__</DefineConstants>
+    </PropertyGroup>
+    
+    <PropertyGroup Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::OSX)))' == 'true'">
+        <DefineConstants>$(DefineConstants);__APPLE__</DefineConstants>
     </PropertyGroup>
     <ItemGroup>
-	<None Update="libfreenect2_w.so">
-	  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	<!-- Native libraries for different platforms - proper NuGet packaging -->
+	<Content Include="runtimes/linux-x64/native/**" Condition="Exists('runtimes/linux-x64/native/')">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  <Pack>true</Pack>
+	  <PackagePath>runtimes/linux-x64/native/%(RecursiveDir)%(Filename)%(Extension)</PackagePath>
+	</Content>
+	
+	<Content Include="runtimes/win-x64/native/**" Condition="Exists('runtimes/win-x64/native/')">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  <Pack>true</Pack>
+	  <PackagePath>runtimes/win-x64/native/%(RecursiveDir)%(Filename)%(Extension)</PackagePath>
+	</Content>
+	
+	<Content Include="runtimes/osx-x64/native/**" Condition="Exists('runtimes/osx-x64/native/')">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  <Pack>true</Pack>
+	  <PackagePath>runtimes/osx-x64/native/%(RecursiveDir)%(Filename)%(Extension)</PackagePath>
+	</Content>
+	
+	<!-- Include wrapper libraries in the output -->
+	<None Include="wrapper/libfreenect2_w.so" Condition="Exists('wrapper/libfreenect2_w.so')">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  <Pack>true</Pack>
+	  <PackagePath>runtimes/linux-x64/native/libfreenect2_w.so</PackagePath>
 	</None>
+	
+	<None Include="wrapper/libfreenect2_w.dll" Condition="Exists('wrapper/libfreenect2_w.dll')">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  <Pack>true</Pack>
+	  <PackagePath>runtimes/win-x64/native/libfreenect2_w.dll</PackagePath>
+	</None>
+	
+	<None Include="wrapper/libfreenect2_w.dylib" Condition="Exists('wrapper/libfreenect2_w.dylib')">
+	  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  <Pack>true</Pack>
+	  <PackagePath>runtimes/osx-x64/native/libfreenect2_w.dylib</PackagePath>
+	</None>
+	
+	<!-- Include MSBuild targets file with correct naming -->
+	
+	<!-- Also include as props file for better compatibility -->
     </ItemGroup>
+    
+    <!-- Target that will be included in consumer projects -->
+    <Target Name="EnsureNativeLibrariesAvailable" BeforeTargets="Build">
+        <Message Text="libfreenect2sharp: Setting up native libraries..." Importance="high" />
+        
+        <!-- Copy native libraries from wrapper directory to output -->
+        <ItemGroup>
+            <WrapperFiles Include="wrapper/*.so" />
+            <WrapperFiles Include="wrapper/*.dll" />
+            <WrapperFiles Include="wrapper/*.dylib" />
+        </ItemGroup>
+        
+        <Copy SourceFiles="@(WrapperFiles)" 
+              DestinationFolder="$(OutputPath)" 
+              SkipUnchangedFiles="true" 
+              Condition="Exists('%(Identity)')" />
+        
+        <Message Text="libfreenect2sharp: Copied @(WrapperFiles->Count()) files from wrapper/ to $(OutputPath)" Importance="high" />
+    </Target>
+
+    <!-- Automatically copy native libraries from various sources -->
+    <Target Name="CopyNativeLibraries" BeforeTargets="Build">
+        <!-- Linux: Copy from common libfreenect2 installation paths -->
+        <ItemGroup Condition="'$(OS)' != 'Windows_NT'">
+            <LinuxPaths Include="/usr/local/lib/libfreenect2*" />
+            <LinuxPaths Include="/usr/lib/x86_64-linux-gnu/libfreenect2*" />
+            <LinuxPaths Include="/usr/lib/libfreenect2*" />
+            <LinuxPaths Include="$(HOME)/libfreenect2/lib/libfreenect2*" />
+            <LinuxPaths Include="./libfreenect2/lib/libfreenect2*" />
+        </ItemGroup>
+        
+        <!-- Windows: Copy from common libfreenect2 installation paths -->
+        <ItemGroup Condition="'$(OS)' == 'Windows_NT'">
+            <WindowsPaths Include="C:\Program Files\libfreenect2\bin\libfreenect2*" />
+            <WindowsPaths Include="C:\libfreenect2\bin\libfreenect2*" />
+            <WindowsPaths Include="$(USERPROFILE)\libfreenect2\bin\libfreenect2*" />
+            <WindowsPaths Include=".\libfreenect2\bin\libfreenect2*" />
+        </ItemGroup>
+
+        <!-- Copy existing native files from build directory -->
+        <ItemGroup>
+            <ExistingNativeFiles Include="bin/Debug/net9.0/*.so*" />
+            <ExistingNativeFiles Include="bin/Debug/net9.0/*.dll" />
+            <ExistingNativeFiles Include="bin/Debug/net9.0/*.dylib*" />
+        </ItemGroup>
+        
+        <Copy SourceFiles="@(LinuxPaths)" DestinationFolder="runtimes/linux-x64/native/" Condition="'$(OS)' != 'Windows_NT' AND Exists('%(Identity)')" />
+        <Copy SourceFiles="@(WindowsPaths)" DestinationFolder="runtimes/win-x64/native/" Condition="'$(OS)' == 'Windows_NT' AND Exists('%(Identity)')" />
+        <Copy SourceFiles="@(ExistingNativeFiles)" DestinationFolder="runtimes/linux-x64/native/" Condition="Exists('%(Identity}')" />
+    </Target>
+
 </Project>
+

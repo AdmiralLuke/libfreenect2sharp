@@ -1,6 +1,9 @@
+# Build outputs
 .vscode/
 .history/
 .idea/
+obj/
+bin/release/
 *.sublime-workspace
 *.sublime-project
 *.code-workspace
@@ -9,3 +12,20 @@
 *.bak
 *.swp
 *.DS_Store
+*.cache
+*.json
+*.props
+*.so 
+*.dll
+*.nupkg
+*.snupkg
+obj/libfreenect2sharp.csproj.nuget.dgspec.json
+obj/libfreenect2sharp.csproj.nuget.g.props
+obj/project.assets.json
+obj/project.nuget.cache
+test/bin/
+
+# Native libraries (keep structure, ignore files)
+runtimes/*/native/*.so*
+runtimes/*/native/*.dll
+runtimes/*/native/*.dylib
