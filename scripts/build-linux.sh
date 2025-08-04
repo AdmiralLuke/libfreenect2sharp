@@ -4,6 +4,9 @@ echo
 echo "This script will build the C# wrapper library and compile the native shared library."
 echo
 
+find . -type f -name "libfreenect2_w.so" -exec rm -v {} \;
+
+
 # Check for available C++ compilers
 echo "Checking for available C++ compilers..."
 
@@ -125,9 +128,10 @@ mkdir -p wrapper
 mkdir -p runtimes/linux-x64/native
 
 # Copy our wrapper library
-cp libfreenect2_w.so bin/Release/net9.0/
-cp libfreenect2_w.so wrapper/
-cp libfreenect2_w.so runtimes/linux-x64/native/
+cp -f libfreenect2_w.so bin/Release/net9.0/
+cp -f libfreenect2_w.so wrapper/
+cp -f libfreenect2_w.so runtimes/linux-x64/native/
+rm -f nupkg/libfreenect2sharp.*.nupkg
 
 # Copy libfreenect2 dependencies first to current directory for testing
 if [ -f ~/libfreenect2/build/lib/libfreenect2.so ]; then

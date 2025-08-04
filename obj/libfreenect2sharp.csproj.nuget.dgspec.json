@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Luke\\Documents\\libfreenect2sharp\\libfreenect2sharp.csproj": {}
+    "/Users/hifumi/Documents/University/Masters/Sem2/WTP/libfreenect2csharp/libfreenect2sharp.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Luke\\Documents\\libfreenect2sharp\\libfreenect2sharp.csproj": {
+    "/Users/hifumi/Documents/University/Masters/Sem2/WTP/libfreenect2csharp/libfreenect2sharp.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Luke\\Documents\\libfreenect2sharp\\libfreenect2sharp.csproj",
+        "projectUniqueName": "/Users/hifumi/Documents/University/Masters/Sem2/WTP/libfreenect2csharp/libfreenect2sharp.csproj",
         "projectName": "libfreenect2sharp",
-        "projectPath": "C:\\Users\\Luke\\Documents\\libfreenect2sharp\\libfreenect2sharp.csproj",
-        "packagesPath": "C:\\Users\\Luke\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Luke\\Documents\\libfreenect2sharp\\obj\\",
+        "projectPath": "/Users/hifumi/Documents/University/Masters/Sem2/WTP/libfreenect2csharp/libfreenect2sharp.csproj",
+        "packagesPath": "/Users/hifumi/.nuget/packages/",
+        "outputPath": "/Users/hifumi/Documents/University/Masters/Sem2/WTP/libfreenect2csharp/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\Luke\\AppData\\Roaming\\NuGet\\NuGet.Config"
+          "/Users/hifumi/.nuget/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net9.0"
@@ -59,7 +59,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.303/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "/Users/hifumi/.dotnet/sdk/9.0.303/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

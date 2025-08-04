@@ -17,6 +17,8 @@ bin/release/
 *.props
 *.so 
 *.dll
+*.nupkg
+*.snupkg
 obj/libfreenect2sharp.csproj.nuget.dgspec.json
 obj/libfreenect2sharp.csproj.nuget.g.props
 obj/project.assets.json

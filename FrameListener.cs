@@ -1,60 +1,66 @@
-namespace libfreenect2sharp;
+using System;
+using System.Runtime.InteropServices;
 
-/*
- * Possible frame types
- */
-public class Frame
+namespace libfreenect2sharp
 {
-    enum TYPE
+    internal delegate void NewFrameCallbackDelegate(
+        int frameType,
+        IntPtr data,
+        int width,
+        int height,
+        int bytesPerPixel,
+        uint timestamp,
+        uint sequence,
+        float exposure,
+        float gain,
+        float gamma
+    );
+
+    internal class FrameListener : IDisposable
     {
-        Color = 1, // 1920x1080. BGRX or RGBX.
-        Ir = 2,    // 512x424 float. Range is [0.0, 65535.0].
-        Depth = 4  // 512x424 float, unit: millimeter. Non-positive, NaN, and infinity are invalid or missing data. why
-                   // is depth 4 :sob:
+        private IntPtr nativeListener;
+
+        private readonly NewFrameCallbackDelegate _callbackDelegate;
+
+        private const string LibraryName = "libfreenect2_w";
+
+        [DllImport(LibraryName, CallingConvention = CallingConvention.Cdecl)]
+        private static extern IntPtr createFrameListener(NewFrameCallbackDelegate callback);
+
+        [DllImport(LibraryName, CallingConvention = CallingConvention.Cdecl)]
+        private static extern void deleteFrameListener(IntPtr listener);
+
+        internal FrameListener(Action<Frame.FrameType, Frame> onNewFrame)
+        {
+            _callbackDelegate = (type, data, width, height, bpp, ts, seq, exp, gain, gamma) =>
+            {
+                var frame = new Frame
+                {
+                    Width = width,
+                    Height = height,
+                    BytesPerPixel = bpp,
+                    Data = data,
+                    Timestamp = ts,
+                    Sequence = seq,
+                    Exposure = exp,
+                    Gain = gain,
+                    Gamma = gamma
+                };
+                onNewFrame?.Invoke((Frame.FrameType)type, frame);
+            };
+
+            nativeListener = createFrameListener(_callbackDelegate);
+        }
+
+        internal IntPtr NativePointer => nativeListener;
+
+        public void Dispose()
+        {
+            if (nativeListener != IntPtr.Zero)
+            {
+                deleteFrameListener(nativeListener);
+                nativeListener = IntPtr.Zero;
+            }
+        }
     }
-    /** Pixel format. */
-    enum FORMAT
-    {
-        Invalid = 0, // Invalid format.
-        Raw = 1, // Raw bitstream. 'bytes_per_pixel' defines the number of bytes
-        Float = 2, // A 4-byte float per pixel
-        BGRX = 4, // 4 bytes of B, G, R, and unused per pixel
-        RGBX = 5, // 4 bytes of R, G, B, and unused per pixel
-        Gray = 6, // 1 byte of gray per pixel
-    };
-
-    /// <summary>
-    /// creates a new frame
-    /// </summary>
-    /// <param name="width">Width in pixels</param>
-    /// <param name="height">Height in pixels</param>
-    /// <param name="bytesPerPixel">Bytes per pixel</param>
-    /// <param name="type"></param>
-    /// <param name="depthData"></param>
-    Frame(nint width, nint height, nint bytesPerPixel, TYPE type, Array depthData)
-    {
-        _width = width;
-        _height = height;
-        _bytesPerPixel = bytesPerPixel;
-    }
-
-    private nint _width; //length of a line
-    private nint _height; //number of lines in a frame
-    private nint _bytesPerPixel; // number of bytes in a pixel
-    private nint _timestamp;
-    private nint _sequence;
-    private float _exposure;
-    private float _gain;
-    private float _gamma; 
-    private UInt32 _status; // zero indicates no errors
-    private FORMAT _format; // byte format. For information
-    private Array _depthData; // data
-}
-
-/*
- * Callback interface to receive new frames
- */
-public class FrameListener
-{
-    
 }
