@@ -74,3 +74,40 @@ extern "C" {
     }
 }
 
+extern "C" {
+    static ConsoleLogger defaultLogger_(Logger::getDefaultLevel());
+    static Logger *userLogger_ = &defaultLogger_;
+
+    enum Level
+    {
+        None = 0,
+        Error = 1,
+        Warning = 2,
+        Info = 3,
+        Debug = 4,
+      };
+    
+    libfreenect2::LIBFREENECT2_API void setGlobalLogger(libfreenect2::LIBFREENECT2_Logger* logger)
+    {
+        if (userLogger_ != &defaultLogger_)
+            delete userLogger_;
+        userLogger_ = logger;
+    }
+
+    Logger *getGlobalLogger()
+    {
+        return userLogger_;
+    }
+
+    Logger *createConsoleLogger(Logger::Level level)
+    {
+        return new ConsoleLogger(level);
+    }
+
+    Logger *createConsoleLoggerWithDefaultLevel()
+    {
+        return new ConsoleLogger(Logger::getDefaultLevel());
+    }
+
+}
+
