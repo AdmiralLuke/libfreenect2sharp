@@ -1,9 +1,9 @@
 # install libfreenect2
 # follows https://github.com/OpenKinect/libfreenect2/blob/master/README.md#macos
 
-cd ~
+cd ~ || exit
 git clone https://github.com/OpenKinect/libfreenect2.git
-cd libfreenect2
+cd libfreenect2 || exit
 
 ## install build tools
 brew update
@@ -12,6 +12,7 @@ brew install glfw3
 
 ## build 
 mkdir build
-cd build
-cmake ..
+cd build || exit
+cmake .. -DCMAKE_POLICY_VERSION_MINIMUM=3.5
 make
+make install 
