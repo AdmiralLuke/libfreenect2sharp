@@ -52,7 +52,15 @@ echo "Found .NET SDK"
 # Build native library
 echo
 echo "Building native library with $COMPILER..."
-$COMPILER -shared -fPIC -o libfreenect2_w.dylib wrapper/libfreenect2_w_standalone.c
+
+# Get the absolute path to the project root
+PROJECT_ROOT=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
+
+# Path to the wrapper source file
+WRAPPER_SRC="$PROJECT_ROOT/wrapper/freenect2_wrapper.cpp"
+
+#$COMPILER -shared -fPIC -o wrapper/libfreenect2.dylib wrapper/libfreenect2_wrapper.cpp
+$COMPILER -shared -fPIC -o libfreenect2.dylib "$WRAPPER_SRC"
 
 if [ $? -eq 0 ]; then
     echo "Successfully built libfreenect2_w.dylib"
