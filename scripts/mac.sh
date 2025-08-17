@@ -40,5 +40,7 @@ $BREW install glfw3
 mkdir -p build
 cd build || exit
 cmake .. -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -DCMAKE_OSX_ARCHITECTURES=$CMAKE_ARCH
-# make -j$(sysctl -n hw.ncpu) compile in parallel
+make -j$(sysctl -n hw.ncpu) compile in parallel
 make install
+
+file lib/libfreenect2.0.2.0.dylib* # should output: Mach-O 64-bit dynamically linked shared library arm64
