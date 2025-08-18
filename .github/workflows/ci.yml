@@ -50,8 +50,6 @@ jobs:
 
   build-windows:
     runs-on: windows-latest
-    # Windows builds only on main branch
-    if: github.ref == 'refs/heads/main'
     steps:
       - name: Checkout
         uses: actions/checkout@v3
