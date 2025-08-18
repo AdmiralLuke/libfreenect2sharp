@@ -139,10 +139,11 @@ if exist nupkg\libfreenect2sharp.*.nupkg del nupkg\libfreenect2sharp.*.nupkg
 REM Copy libfreenect2 dependencies if they exist
 if exist "%USERPROFILE%\libfreenect2\build\lib\libfreenect2.dll" (
     echo Copying libfreenect2 dependencies...
-    copy "%USERPROFILE%\libfreenect2\build\lib\libfreenect2.*" bin\Release\net8.0\ >nul
+    copy "%USERPROFILE%\libfreenect2\build\lib\libfreenect2.*" bin\Release\net9.0\ >nul
+    copy "%USERPROFILE%\libfreenect2\build\lib\libfreenect2.*" wrapper\ >nul
     copy "%USERPROFILE%\libfreenect2\build\lib\libfreenect2.*" runtimes\win-x64\native\ >nul
     
-    echo libfreenect2 dependencies copied
+    echo libfreenect2 dependencies copied to all locations
 )
 
 echo.
