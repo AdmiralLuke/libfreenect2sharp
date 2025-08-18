@@ -50,47 +50,27 @@ jobs:
 
   build-windows:
     runs-on: windows-latest
-    # Windows builds only on main branch
-    if: github.ref == 'refs/heads/main'
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '9.0.x'
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v1.1
+      - name: Install dependencies
+        run: |
+          choco install mingw -y
       - name: Install libfreenect2
         run: |
           scripts/windows.bat
-      - name: Install C# dependencies
-        run: |
-          choco install dotnetcore-sdk
-          choco install gtk-runtime
-      - name: Build wrapper library
-        run: |
-          echo "Building wrapper library for Windows..."
-          cl /LD /EHsc wrapper\freenect2_wrapper.cpp /Fe:libfreenect2_w.dll /I"vcpkg\installed\x64-windows\include" /link /LIBPATH:"vcpkg\installed\x64-windows\lib" freenect2.lib
-          if (Test-Path "libfreenect2_w.dll") {
-            echo "Successfully built libfreenect2_w.dll"
-            Copy-Item "libfreenect2_w.dll" "wrapper\"
-            Copy-Item "libfreenect2_w.dll" "bin\Release\net9.0\" -Force
-          } else {
-            echo "Failed to build wrapper library"
-            echo "Using mock implementation for testing..."
-            cl /LD /EHsc wrapper\mock_freenect2_w.cpp /Fe:libfreenect2_w.dll
-            Copy-Item "libfreenect2_w.dll" "wrapper\"
-            Copy-Item "libfreenect2_w.dll" "bin\Release\net9.0\" -Force
-          }
-        shell: pwsh
       - name: Build and Package
         run: |
           scripts/build-windows.bat
       - name: Publish
         run: |
           dotnet publish --configuration Release --runtime win-x64 --output ./publish/win-x64
-      - name: Copy native libraries to runtimes folder
-        run: |
-          mkdir -p runtimes/win-x64/native
-          copy bin/Release/net9.0/*.dll runtimes/win-x64/native/ 2>nul || echo "No DLLs to copy"
-          copy wrapper/*.dll runtimes/win-x64/native/ 2>nul || echo "No wrapper DLLs to copy"
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -99,7 +79,6 @@ jobs:
             ./publish/win-x64/*
             ./runtimes/win-x64/native/*
             ./nupkg/*.nupkg
-
   build-macos:
     runs-on: macos-latest
     # macOS builds only on main branch
