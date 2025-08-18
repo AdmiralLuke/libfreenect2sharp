@@ -24,8 +24,11 @@ obj/libfreenect2sharp.csproj.nuget.g.props
 obj/project.assets.json
 obj/project.nuget.cache
 test/bin/
+obj/
+*.cache
 
 # Native libraries (keep structure, ignore files)
 runtimes/*/native/*.so*
 runtimes/*/native/*.dll
 runtimes/*/native/*.dylib
+obj/Debug/net9.0/libfreenect2sharp.GeneratedMSBuildEditorConfig.editorconfig
