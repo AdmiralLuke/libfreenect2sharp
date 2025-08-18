@@ -34,6 +34,11 @@ jobs:
       - name: Publish
         run: |
           dotnet publish --configuration Release --runtime linux-x64 --output ./publish/linux-x64
+      - name: Copy native libraries to runtimes folder
+        run: |
+          mkdir -p runtimes/linux-x64/native
+          cp bin/Release/net9.0/*.so* runtimes/linux-x64/native/ || true
+          cp wrapper/*.so runtimes/linux-x64/native/ || true
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -66,12 +71,6 @@ jobs:
       - name: Publish
         run: |
           dotnet publish --configuration Release --runtime win-x64 --output ./publish/win-x64
-      - name: Copy native libraries to runtimes folder
-        run: |
-          if not exist runtimes\win-x64\native mkdir runtimes\win-x64\native
-          copy bin\Release\net9.0\*.dll runtimes\win-x64\native\ 2>nul || echo "No DLLs to copy"
-          copy wrapper\*.dll runtimes\win-x64\native\ 2>nul || echo "No wrapper DLLs to copy"
-        shell: cmd
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
