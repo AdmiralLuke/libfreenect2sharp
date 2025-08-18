@@ -115,35 +115,35 @@ jobs:
             ./runtimes/osx-x64/native/*
             ./nupkg/*.nupkg
 
-  release:
-    needs: [build-linux, build-windows, build-macos]
-    runs-on: ubuntu-latest
+  # release:
+  #  needs: [build-linux, build-windows, build-macos]
+  #  runs-on: ubuntu-latest
     # Release only runs on main branch
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-      - name: Bump version and push tag
-        id: tag_version
-        uses: mathieudutour/github-tag-action@v6.2
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-      - name: Download all artifacts
-        uses: actions/download-artifact@v4
-      - name: Create NuGet package
-        run: |
-          sudo apt-get install -y dotnet-sdk-9.0
-          dotnet pack --configuration Release --output ./nupkg
-      - name: Release
-        uses: softprops/action-gh-release@v1
-        with:
-          tag_name: ${{ steps.tag_version.outputs.new_tag }}
-          name: Release ${{ steps.tag_version.outputs.new_tag }}
-          body: ${{ steps.tag_version.outputs.changelog }}
-          files: |
-            linux-build/**/*
-            windows-build/**/*
-            macos-build/**/*
-            ./nupkg/*.nupkg
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  #  if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+  #  steps:
+  #    - name: Checkout
+  #      uses: actions/checkout@v3
+  #    - name: Bump version and push tag
+  #      id: tag_version
+  #      uses: mathieudutour/github-tag-action@v6.2
+  #      with:
+  #        github_token: ${{ secrets.GITHUB_TOKEN }}
+  #    - name: Download all artifacts
+  #      uses: actions/download-artifact@v4
+  #    - name: Create NuGet package
+  #      run: |
+  #        sudo apt-get install -y dotnet-sdk-9.0
+  #        dotnet pack --configuration Release --output ./nupkg
+  #    - name: Release
+  #      uses: softprops/action-gh-release@v1
+  #      with:
+  #        tag_name: ${{ steps.tag_version.outputs.new_tag }}
+  #        name: Release ${{ steps.tag_version.outputs.new_tag }}
+  #        body: ${{ steps.tag_version.outputs.changelog }}
+  #        files: |
+  #          linux-build/**/*
+  #          windows-build/**/*
+  #          macos-build/**/*
+  #          ./nupkg/*.nupkg
+  #      env:
+  #        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
