@@ -52,8 +52,27 @@ echo "Found .NET SDK"
 # Build native library
 echo
 echo "Building native library with $COMPILER..."
-$COMPILER -shared -fPIC -o libfreenect2_w.dylib wrapper/libfreenect2_w_standalone.c
 
+# Get the absolute path to the project root
+PROJECT_ROOT=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
+
+# Path to the wrapper source file
+WRAPPER_SRC="$PROJECT_ROOT/wrapper/freenect2_wrapper.cpp"
+WRAPPERLIB_SRC="$PROJECT_ROOT/wrapper/libfreenect2_wrapper.dylib"
+
+if [ ! -f "$WRAPPER_SRC" ]; then
+    echo "Error: Could not find wrapper source at $WRAPPER_SRC"
+    exit 1
+fi
+
+#$COMPILER -shared -fPIC -o "$WRAPPERLIB_SRC" "$WRAPPER_SRC"
+
+# For some reason only clang++ works $COMPILER finds clang and it doesnt work
+clang++ -std=c++11 -shared -fPIC \
+    -I/usr/local/include \
+    -L/usr/local/lib -lfreenect2 \
+    -o "$WRAPPERLIB_SRC" "$WRAPPER_SRC"
+    
 if [ $? -eq 0 ]; then
     echo "Successfully built libfreenect2_w.dylib"
 else
@@ -64,7 +83,8 @@ fi
 # Build C# wrapper library
 echo
 echo "Building C# wrapper library..."
-dotnet build --configuration Release
+#dotnet build --configuration Release
+dotnet build "$PROJECT_ROOT/libfreenect2sharp.csproj" --configuration Release
 
 if [ $? -eq 0 ]; then
     echo "Successfully built C# library"
@@ -87,7 +107,7 @@ echo "Native library copied to output directories"
 # Create NuGet package
 echo
 echo "Creating NuGet package..."
-dotnet pack --configuration Release --output ./nupkg
+dotnet pack "$PROJECT_ROOT/libfreenect2sharp.csproj" --configuration Release --output ./nupkg
 
 if [ $? -eq 0 ]; then
     echo
