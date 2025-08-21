@@ -72,6 +72,8 @@ public class Kinect
     private FrameListener? colorListener;
     private FrameListener? irDepthListener;
     
+    private RegistrationInterop registration;
+    
     /// <summary>
     /// Instance from one Kinect Device
     /// </summary>
@@ -86,6 +88,7 @@ public class Kinect
         {
             throw new Exception("Could not start Kinect device");
         }
+        registration = new RegistrationInterop(Device);
         SetLed(0, 1, 0, 1000, 500);
         SetLed(1, 0, 1000, 1000, 0);
     }
@@ -304,6 +307,19 @@ public class Kinect
         irDepthListener?.Dispose(); 
         irDepthListener = new FrameListener(callback);
         setIrAndDepthFrameListener(Device, irDepthListener.NativePointer);
+    }
+
+    /// <summary>
+    /// Undistorts and registers a single depth point to the color camera.
+    /// </summary>
+    /// <param name="dx">Distorted depth coordinate x (pixel).</param>
+    /// <param name="dy">Distorted depth coordinate y (pixel).</param>
+    /// <param name="dz">Depth value (millimeter).</param>
+    /// <param name="cx">Undistorted color coordinate x (normalized).</param>
+    /// <param name="cy">Undistorted color coordinate y (normalized).</param>
+    public void Apply(int dx, int dy, float dz, out float cx, out float cy)
+    {
+        registration.Apply(dx, dy, dz, out cx, out cy);
     }
 
 

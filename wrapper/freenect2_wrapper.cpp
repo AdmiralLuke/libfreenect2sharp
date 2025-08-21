@@ -319,6 +319,49 @@ extern "C" {
 
     }
 
+    extern "C" {
+        struct FrameInterop {
+            unsigned char* data;
+            int width;
+            int height;
+            int bytes_per_pixel;
+        };
+
+        struct RegistrationInterop {
+            libfreenect2::Registration* registration;
+        };
+
+        RegistrationInterop* createRegistration(libfreenect2::Freenect2Device* device) {
+            auto depthParams = device->getIrCameraParams();
+            auto colorParams = device->getColorCameraParams();
+            RegistrationInterop* regInterop = new RegistrationInterop();
+            regInterop->registration = new libfreenect2::Registration(depthParams, colorParams);
+            return regInterop;
+        }
+
+        void deleteRegistration(RegistrationInterop* regInterop) {
+            delete regInterop->registration;
+            delete regInterop;
+        }
+
+        void applyRegistration(RegistrationInterop* regInterop, FrameInterop* rgb, FrameInterop* depth, FrameInterop* undistorted, FrameInterop* registered, bool enable_filter) {
+            // Create Frame objects with the correct parameters
+            libfreenect2::Frame rgbFrame(rgb->width, rgb->height, rgb->bytes_per_pixel, rgb->data);
+            libfreenect2::Frame depthFrame(depth->width, depth->height, depth->bytes_per_pixel, depth->data);
+            libfreenect2::Frame undistortedFrame(undistorted->width, undistorted->height, undistorted->bytes_per_pixel, undistorted->data);
+            libfreenect2::Frame registeredFrame(registered->width, registered->height, registered->bytes_per_pixel, registered->data);
+
+            // Call the apply method
+            regInterop->registration->apply(&rgbFrame, &depthFrame, &undistortedFrame, &registeredFrame, enable_filter);
+        }
+
+        void applyRegistrationPoint(RegistrationInterop* regInterop, int dx, int dy, float dz, float* cx, float* cy) {
+            regInterop->registration->apply(dx, dy, dz, *cx, *cy);
+        }
+    }
+
+   
+
 
 
 

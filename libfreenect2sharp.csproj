@@ -16,7 +16,7 @@
         
         <!-- NuGet Package Properties -->
         <PackageId>libfreenect2sharp</PackageId>
-        <Version>1.0.4</Version>
+        <Version>1.0.5</Version>
         <Authors>AdmiralLuke</Authors>
         <Description>C# wrapper for libfreenect2 library for Kinect v2 development</Description>
         <PackageProjectUrl>https://github.com/AdmiralLuke/libfreenect2sharp</PackageProjectUrl>

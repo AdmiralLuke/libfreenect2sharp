@@ -47,7 +47,7 @@ chmod +x ./scripts/build-linux.sh
 :exclamation: **Windows** and **MacOS** are rather untested yet and experimental!
 
 This should generate (when success) the following:
-- in ``./nupkg/`` a ``libfreenect2sharp.1.0.4.nupkg`` and ``libfreenect2sharp.1.0.4.snupkg`` (see Releases (TODO))
+- in ``./nupkg/`` a ``libfreenect2sharp.1.0.5.nupkg`` and ``libfreenect2sharp.1.0.5.snupkg`` (see Releases (TODO))
 - in the current main folder a ``libfreenect2_w.so`` and three linked files (copied from ~/libfreenect2)
 ```sh 
 libfreenect2.so
@@ -66,7 +66,7 @@ libfreenect2.so.0.2.0
 - add the local nuget package
 
 ```sh
-dotnet add package libfreenect2sharp --version 1.0.4 --source ./Native
+dotnet add package libfreenect2sharp --version 1.0.5 --source ./Native
 ```
 
 :question: If the build of the project failes with an DLLNotFoundException, try to add the following .so files to ``./bin/Debug/netX.Y/`` or (if not available) to the same folder as the ``.nupkg`` file: 
