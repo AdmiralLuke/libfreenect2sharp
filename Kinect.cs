@@ -73,6 +73,7 @@ public class Kinect
     private FrameListener? irDepthListener;
     
     private RegistrationInterop registration;
+    private IntPtr _lastFrame = IntPtr.Zero;
     
     /// <summary>
     /// Instance from one Kinect Device
@@ -296,6 +297,7 @@ public class Kinect
         colorListener?.Dispose(); 
         colorListener = new FrameListener(callback);
         setColorFrameListener(Device, colorListener.NativePointer);
+        _lastFrame = colorListener._lastDepthFramePtr;
     }
 
     /// <summary>
@@ -322,6 +324,64 @@ public class Kinect
         registration.Apply(dx, dy, dz, out cx, out cy);
     }
 
+    /// <summary>
+    /// Construct a 3-D point in a point cloud. 
+    /// </summary>
+    /// <param name="colorData">Color image (1920x1080 BGRX) </param>
+    /// <param name="depthData">Depth image (512x424 float) </param>
+    /// <param name="c">Column (x) index in depth image. </param>
+    /// <param name="r">Row (y) index in depth image. </param>
+    /// <param name="x">X coordinate of the 3-D point (meter). </param>
+    /// <param name="y">Y coordinate of the 3-D point (meter). </param>
+    /// <param name="z">Z coordinate of the 3-D point (meter). </param>
+    /// <returns>If not NULL, return mapping of depth onto colors (1920x1082 float). 1082 not 1080, with a blank top and bottom row. </returns>
+    public RegistrationInterop.FrameInterop GetPointXYZ(byte[] colorData, byte[] depthData, int c, int r, out float  x, out float y, out float z)
+    {
+        IntPtr colorPtr = FrameToPointer(colorData);
+        IntPtr depthPtr = FrameToPointer(depthData);
+
+
+        RegistrationInterop.FrameInterop undistort;
+        RegistrationInterop.FrameInterop registered;
+
+        RegistrationInterop.FrameInterop color = new RegistrationInterop.FrameInterop
+        {
+            data = colorPtr,
+            width = 1920,
+            height = 1080,
+            bytes_per_pixel = 4
+        };
+        
+        RegistrationInterop.FrameInterop depth = new RegistrationInterop.FrameInterop
+        {
+            data = depthPtr,
+            width = 512,
+            height = 424,
+            bytes_per_pixel = 4
+        };
+
+        RegistrationInterop.FrameInterop bigdepth = new RegistrationInterop.FrameInterop
+        {
+            data = IntPtr.Zero,
+            width = 1920,
+            height = 1082,
+            bytes_per_pixel = 4
+        };
+        
+        registration.ApplyRegistration(color, depth, out registered, out undistort, out bigdepth);
+        registration.GetPointXYZ(undistort, r, c, out x, out y, out z);
+        
+        Marshal.FreeHGlobal(colorPtr);
+        Marshal.FreeHGlobal(depthPtr);
+        return bigdepth;
+    }
+
+    internal IntPtr FrameToPointer(byte[] data)
+    {
+        IntPtr ptr = Marshal.AllocHGlobal(data.Length);
+        Marshal.Copy(data, 0, ptr, data.Length);
+        return ptr;
+    }
 
     
     

@@ -30,6 +30,8 @@ namespace libfreenect2sharp
         [DllImport(LibraryName, CallingConvention = CallingConvention.Cdecl)]
         private static extern void deleteFrameListener(IntPtr listener);
 
+        internal IntPtr _lastDepthFramePtr = IntPtr.Zero;
+        
         internal FrameListener(Action<Frame.FrameType, Frame> onNewFrame)
         {
             _callbackDelegate = (type, data, width, height, bpp, ts, seq, exp, gain, gamma) =>
