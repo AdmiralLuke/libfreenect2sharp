@@ -4,6 +4,8 @@
 #include <libfreenect2/packet_pipeline.h>
 #include <libfreenect2/logger.h>
 #include <cstring>
+#include <iostream>
+using namespace std;
 
 extern "C" {
     libfreenect2::Freenect2* createFreenect2() {
@@ -344,24 +346,47 @@ extern "C" {
             delete regInterop;
         }
 
-        void applyRegistration(RegistrationInterop* regInterop, FrameInterop* rgb, FrameInterop* depth, FrameInterop* undistorted, FrameInterop* registered, bool enable_filter, FrameInterop* bigdepth) {
+        void applyRegistration(RegistrationInterop* regInterop, FrameInterop rgb, FrameInterop depth, FrameInterop* undistorted, FrameInterop* registered, bool enable_filter, FrameInterop* bigdepth) {
             // Create Frame objects with the correct parameters
-            libfreenect2::Frame rgbFrame(rgb->width, rgb->height, rgb->bytes_per_pixel, rgb->data);
-            libfreenect2::Frame depthFrame(depth->width, depth->height, depth->bytes_per_pixel, depth->data);
-            libfreenect2::Frame undistortedFrame(undistorted->width, undistorted->height, undistorted->bytes_per_pixel, undistorted->data);
-            libfreenect2::Frame registeredFrame(registered->width, registered->height, registered->bytes_per_pixel, registered->data);
-            libfreenect2::Frame bigdepthFrame(bigdepth->width, bigdepth->height, bigdepth->bytes_per_pixel, bigdepth->data);
-            // Call the apply method
-            regInterop->registration->apply(&rgbFrame, &depthFrame, &undistortedFrame, &registeredFrame, enable_filter, &bigdepthFrame);
+            cout << "Registraion start\n";
+            const libfreenect2::Frame rgbFrame(rgb.width, rgb.height, rgb.bytes_per_pixel, rgb.data);
+            const libfreenect2::Frame depthFrame(depth.width, depth.height, depth.bytes_per_pixel, depth.data);
+            cout << rgb.width << " " << rgb.height << " " << rgb.bytes_per_pixel << "\n";
+            cout << depth.width << " " << depth.height << " " << depth.bytes_per_pixel << "\n";
+            libfreenect2::Frame undistortedFrame(512, 424, 4, undistorted->data);
+   
+            unsigned char* registeredBuffer = new unsigned char[512 * 424 * 4];
+            libfreenect2::Frame registeredFrame(512, 424, 4, registeredBuffer);
+    
+            
+            libfreenect2::Frame bigdepthFrame(1920, 1082, 4, bigdepth->data);
+
+            cout << "Created Frames\n";
+        
+            int* tmp;
+            regInterop->registration->apply(&rgbFrame, &depthFrame, &undistortedFrame, &registeredFrame, enable_filter, &bigdepthFrame, tmp);
+            
+            undistorted->width = undistortedFrame.width;
+            undistorted->height = undistortedFrame.height;
+            undistorted->bytes_per_pixel = undistortedFrame.bytes_per_pixel;
+            undistorted->data = undistortedFrame.data;
+            
+            bigdepth->width = bigdepthFrame.width;
+            bigdepth->height = bigdepthFrame.height;
+            bigdepth->bytes_per_pixel = bigdepthFrame.bytes_per_pixel;
+            bigdepth->data = bigdepthFrame.data;
+            delete[] registeredBuffer;
+            cout << "Done" << endl;
         }
 
         void applyRegistrationPoint(RegistrationInterop* regInterop, int dx, int dy, float dz, float* cx, float* cy) {
             regInterop->registration->apply(dx, dy, dz, *cx, *cy);
         }
 
-        void getPointXZY(RegistrationInterop* regInterop, FrameInterop* undistorted, int r, int c, float& x, float&y, float&z)
+        void getPointXYZ(RegistrationInterop* regInterop, FrameInterop undistorted, int r, int c, float& x, float&y, float&z)
         {
-            libfreenect2::Frame depth(undistorted->width, undistorted->height, undistorted->bytes_per_pixel, undistorted->data);
+            
+            libfreenect2::Frame depth(undistorted.width, undistorted.height, undistorted.bytes_per_pixel, undistorted.data);
             regInterop->registration->getPointXYZ(&depth, r, c, x, y, z);
         }
     }

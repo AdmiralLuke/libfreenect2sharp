@@ -28,10 +28,10 @@ namespace libfreenect2sharp
 
         public struct FrameInterop
         {
-            internal IntPtr data;
-            internal int width;
-            internal int height;
-            internal int bytes_per_pixel;
+            public IntPtr data;
+            public int width;
+            public int height;
+            public int bytes_per_pixel;
         }
 
         internal RegistrationInterop(IntPtr device)

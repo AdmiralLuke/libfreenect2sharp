@@ -335,14 +335,23 @@ public class Kinect
     /// <param name="y">Y coordinate of the 3-D point (meter). </param>
     /// <param name="z">Z coordinate of the 3-D point (meter). </param>
     /// <returns>If not NULL, return mapping of depth onto colors (1920x1082 float). 1082 not 1080, with a blank top and bottom row. </returns>
-    public RegistrationInterop.FrameInterop GetPointXYZ(byte[] colorData, byte[] depthData, int c, int r, out float  x, out float y, out float z)
+    public byte[] GetPointXYZ(byte[] colorData, byte[] depthData, int c, int r, out float  x, out float y, out float z)
     {
+        Console.WriteLine("Called GetPointXYZ");
         IntPtr colorPtr = FrameToPointer(colorData);
         IntPtr depthPtr = FrameToPointer(depthData);
 
+        byte[] undistortData = new byte[512 * 424 * 4];
+        byte[] bigdepthData = new byte[1920 * 1082 * 4];
+        
+        IntPtr undistortPtr = FrameToPointer(undistortData);
+        IntPtr bigdepthPtr = FrameToPointer(bigdepthData);
 
-        RegistrationInterop.FrameInterop undistort;
-        RegistrationInterop.FrameInterop registered;
+        RegistrationInterop.FrameInterop undistort = new RegistrationInterop.FrameInterop()
+        {
+            data = undistortPtr
+        };
+        RegistrationInterop.FrameInterop registered = new RegistrationInterop.FrameInterop();
 
         RegistrationInterop.FrameInterop color = new RegistrationInterop.FrameInterop
         {
@@ -360,20 +369,23 @@ public class Kinect
             bytes_per_pixel = 4
         };
 
-        RegistrationInterop.FrameInterop bigdepth = new RegistrationInterop.FrameInterop
+        RegistrationInterop.FrameInterop bigdepth = new RegistrationInterop.FrameInterop()
         {
-            data = IntPtr.Zero,
-            width = 1920,
-            height = 1082,
-            bytes_per_pixel = 4
+            data = bigdepthPtr
         };
         
+       Console.WriteLine("Start Registration");
         registration.ApplyRegistration(color, depth, out registered, out undistort, out bigdepth);
         registration.GetPointXYZ(undistort, r, c, out x, out y, out z);
+        Console.WriteLine("End Registration");
+        byte[] bigByteDepth = FrameInteropGetData(bigdepth);
         
         Marshal.FreeHGlobal(colorPtr);
         Marshal.FreeHGlobal(depthPtr);
-        return bigdepth;
+        Marshal.FreeHGlobal(bigdepthPtr);
+        Marshal.FreeHGlobal(undistortPtr);
+        Console.WriteLine("Done with Free");
+        return bigByteDepth;
     }
 
     internal IntPtr FrameToPointer(byte[] data)
@@ -381,6 +393,16 @@ public class Kinect
         IntPtr ptr = Marshal.AllocHGlobal(data.Length);
         Marshal.Copy(data, 0, ptr, data.Length);
         return ptr;
+    }
+
+    public byte[] FrameInteropGetData(RegistrationInterop.FrameInterop frame)
+    {
+
+        int length = frame.width * frame.height * frame.bytes_per_pixel;
+        byte[] result = new byte[length];
+        Marshal.Copy(frame.data, result, 0, length);
+        return result;
+    
     }
 
     
